@@ -1,0 +1,216 @@
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { LogOut, Wrench } from 'lucide-react';
+import { db } from '@/lib/db';
+import { useAuth, canUseCustomerArea } from '@/lib/auth';
+import {
+  Panel,
+  PageTitle,
+  Spinner,
+  EmptyState,
+  RolePill,
+  StatusPill,
+  UrgencyPill,
+} from '@/components/dashboard/ui';
+import { ChangePasswordPanel } from '@/components/auth/ChangePasswordPanel';
+import { BUSINESS_NAME } from '@/data/site-content';
+import type { Status, Urgency } from '@/lib/validation';
+
+type MyRequest = {
+  id: number;
+  location: string;
+  truck_details: string | null;
+  issue_description: string;
+  urgency: Urgency;
+  status: Status;
+  created_at: string;
+};
+
+/**
+ * /account — the customer area. Protected.
+ *
+ * Signed-out visitors go to /login. A customer, an administrator and a
+ * dispatcher may all open this page; their own rows are the only ones it can
+ * show. A `viewer` is sent to /dashboard, which is their workspace.
+ *
+ * The list below is filtered by the query AND by row-level security: the
+ * SELECT policy on service_requests only matches rows whose user_id is the
+ * caller's own auth id or whose email is their own address — so the database,
+ * not this component, is what keeps other people's requests out, for every
+ * role including staff.
+ */
+const Account: React.FC = () => {
+  const navigate = useNavigate();
+  const { session, profile, loading, signOut } = useAuth();
+  const [rows, setRows] = useState<MyRequest[] | null>(null);
+
+  useEffect(() => {
+    if (!loading && !session) navigate('/login', { replace: true });
+  }, [loading, session, navigate]);
+
+  /* An administrator or dispatcher is a staff member AND a customer: they may
+     open this area as well as the dispatch board, and it shows only their own
+     profile and their own requests. A viewer belongs on the dispatch board,
+     and an account still awaiting approval gets the waiting screen. */
+  useEffect(() => {
+    if (loading || !session || !profile) return;
+    if (profile.role === 'pending_staff') navigate('/admin/pending', { replace: true });
+    else if (!canUseCustomerArea(profile)) navigate('/dashboard', { replace: true });
+  }, [loading, session, profile, navigate]);
+
+
+  useEffect(() => {
+    if (!profile || !canUseCustomerArea(profile)) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await db
+        .from('service_requests')
+        .select('id, location, truck_details, issue_description, urgency, status, created_at')
+        .or(`user_id.eq.${profile.id},email.eq.${profile.email}`)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (cancelled) return;
+      if (error) toast.error('Could not load your service requests.');
+      setRows((data ?? []) as MyRequest[]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [profile]);
+
+  const onSignOut = async () => {
+    await signOut();
+    toast.success('Signed out.');
+    navigate('/login', { replace: true });
+  };
+
+  if (loading || !session || !profile) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-ink px-6">
+        <Spinner label="Checking your session…" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-ink">
+      <div className="sticky top-0 z-40 border-b border-white/[0.07] bg-ink/90 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-4 py-3.5 sm:px-7">
+          <Link to="/" className="group flex items-center gap-3">
+            <svg viewBox="0 0 64 64" width="32" height="32" aria-hidden="true">
+              <rect width="64" height="64" rx="14" fill="#11161C" />
+              <path
+                d="M41 12a13 13 0 0 0-14.6 17.4L13.6 42.2a5.2 5.2 0 0 0 7.3 7.3l12.8-12.8A13 13 0 0 0 51 22l-7.4 7.4-6.2-1.8-1.8-6.2z"
+                fill="#F4F5F7"
+              />
+              <circle cx="46" cy="48" r="6.5" fill="#FFB020" />
+            </svg>
+            <span className="leading-tight">
+              <span className="block font-display text-[14.5px] font-bold tracking-tight text-chalk transition-colors group-hover:text-amber">
+                My account
+              </span>
+              <span className="mono block text-[9px] text-graphite">{BUSINESS_NAME}</span>
+            </span>
+          </Link>
+          <button type="button" onClick={onSignOut} className="btn-ghost !py-2.5 text-[13.5px]">
+            <LogOut size={14} />
+            Sign out
+          </button>
+        </div>
+      </div>
+
+      <main className="mx-auto max-w-[1100px] px-4 py-8 sm:px-7 sm:py-10">
+        <PageTitle
+          title={`Welcome back, ${(profile.full_name ?? profile.email).split(' ')[0]}.`}
+          sub="Everything you have sent us, and where each job stands. Need us again? Send a new request and dispatch will call you back."
+          actions={
+            <Link to="/#contact" className="btn-amber !py-2.5 text-[14px]">
+              <Wrench size={15} />
+              Request service
+            </Link>
+          }
+        />
+
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)]">
+          <Panel>
+            <h2 className="font-display text-[17px] font-semibold text-chalk">Your details</h2>
+            <dl className="mt-5 space-y-4">
+              <div>
+                <dt className="field-label">Name</dt>
+                <dd className="mt-1 text-[15px] text-chalk">{profile.full_name ?? '—'}</dd>
+              </div>
+              <div>
+                <dt className="field-label">Email</dt>
+                <dd className="mono mt-1 break-all text-[11px] text-graphite">{profile.email}</dd>
+              </div>
+              <div>
+                <dt className="field-label">Account type</dt>
+                <dd className="mt-2">
+                  <RolePill role={profile.role} />
+                </dd>
+              </div>
+            </dl>
+            <p className="mono mt-6 text-[9.5px] leading-relaxed text-graphite">
+              Need a detail changed? Mention it on your next request and dispatch will update your
+              file.
+            </p>
+          </Panel>
+
+          <Panel className="!p-0">
+            <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] px-5 py-4 sm:px-6">
+              <h2 className="font-display text-[17px] font-semibold text-chalk">
+                Your service requests
+              </h2>
+              {rows !== null && (
+                <span className="mono text-[9.5px] text-graphite">
+                  {rows.length} {rows.length === 1 ? 'request' : 'requests'}
+                </span>
+              )}
+            </div>
+
+            {rows === null ? (
+              <div className="px-6">
+                <Spinner label="Loading your requests…" />
+              </div>
+            ) : rows.length === 0 ? (
+              <div className="p-6">
+                <EmptyState
+                  title="No requests yet"
+                  sub="When you send a request from the site it shows up here with its live status."
+                />
+              </div>
+            ) : (
+              <ul className="divide-y divide-white/[0.05]">
+                {rows.map((r) => (
+                  <li key={r.id} className="px-5 py-5 sm:px-6">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <StatusPill status={r.status} />
+                      <UrgencyPill urgency={r.urgency} />
+                      <span className="mono ml-auto text-[9.5px] text-graphite">
+                        {new Date(r.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-[15px] font-semibold leading-snug text-chalk">
+                      {r.location}
+                    </p>
+                    {r.truck_details && (
+                      <p className="mono mt-1 text-[9.5px] text-graphite">{r.truck_details}</p>
+                    )}
+                    <p className="mt-2 max-w-[70ch] text-[14.5px] leading-relaxed text-graphite">
+                      {r.issue_description}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+
+          <ChangePasswordPanel />
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Account;

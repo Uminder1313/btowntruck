@@ -1,0 +1,21 @@
+# Real HTTP response headers for the deployed site.
+# Netlify / Cloudflare Pages style; see README.md → Security for the
+# equivalent nginx / Vercel configuration if you host elsewhere.
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=(), magnetometer=(), accelerometer=()
+  Cross-Origin-Opener-Policy: same-origin
+  X-DNS-Prefetch-Control: off
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' https://static.supercool.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://prj6cfecc458b3228ba34cd.databasepad.com;  
+  connect-src 'self' https://prj6cfecc458b3228ba34cd.databasepad.com wss://prj6cfecc458b3228ba34cd. http://localhost:3001
+  databasepad.com https://api.supercool.com https://static.supercool.com https://events.supercool.com; frame-src 'none'; upgrade-insecure-requests
+
+
+
+# Long-cache the immutable build assets.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

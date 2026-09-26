@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>BTown Mobile Truck Repair — 24/7 Mobile Truck Repair, Northern New Brunswick</title>
+    <meta
+      name="description"
+      content="24/7 mobile heavy-duty truck &amp; trailer repair across Northern New Brunswick. Certified mechanics dispatched to your location — no tow, no shop wait."
+    />
+    <meta name="theme-color" content="#0E1116" />
+    <meta name="color-scheme" content="dark" />
+
+    <!--
+      Security headers.
+
+      Those that browsers honour from a meta tag are set here. The ones that
+      MUST arrive as real HTTP response headers (X-Frame-Options,
+      Strict-Transport-Security, Permissions-Policy, X-Content-Type-Options
+      and frame-ancestors) are declared in public/_headers, which the host
+      serves alongside the site. See README.md → Security.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               base-uri 'self';
+               form-action 'self';
+               object-src 'none';
+               script-src 'self' 'unsafe-inline' https://static.supercool.com;
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+               font-src 'self' https://fonts.gstatic.com data:;
+               img-src 'self' data: blob: https://prj6cfecc458b3228ba34cd.databasepad.com;
+               connect-src 'self' http://localhost:3001 https://prj6cfecc458b3228ba34cd.databasepad.com wss://prj6cfecc458b3228ba34cd.databasepad.com https://api.supercool.com https://static.supercool.com https://events.supercool.com;
+
+               frame-src 'none';
+               upgrade-insecure-requests"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E1116'/%3E%3Cpath d='M41 12a13 13 0 0 0-14.6 17.4L13.6 42.2a5.2 5.2 0 0 0 7.3 7.3l12.8-12.8A13 13 0 0 0 51 22l-7.4 7.4-6.2-1.8-1.8-6.2z' fill='%23F4F5F7'/%3E%3Ccircle cx='46' cy='48' r='6.5' fill='%23FFB020'/%3E%3C/svg%3E"
+    />
+
+    <meta property="og:title" content="BTown Mobile Truck Repair — 24/7 Mobile Truck Repair, Northern New Brunswick" />
+    <meta
+      property="og:description"
+      content="24/7 mobile heavy-duty truck &amp; trailer repair across Northern New Brunswick. Certified mechanics dispatched to your location."
+    />
+    <meta property="og:type" content="website" />
+
+    <script>
+      // Force HTTPS. Localhost is exempt so development still works.
+      (function () {
+        var h = window.location.hostname;
+        var local = h === 'localhost' || h === '127.0.0.1' || h.endsWith('.local');
+        if (!local && window.location.protocol === 'http:') {
+          window.location.replace(
+            'https://' + window.location.host + window.location.pathname + window.location.search + window.location.hash
+          );
+        }
+      })();
+    </script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

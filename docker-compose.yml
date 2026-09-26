@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: btowntruck-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppassword
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database:/database
+
+volumes:
+  postgres_data:

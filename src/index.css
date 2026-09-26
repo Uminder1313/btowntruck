@@ -1,0 +1,387 @@
+/* ---------------------------------------------------------------------------
+   BTown Mobile Truck Repair — design system
+   Tokens, typography and utility classes mirror the approved prototype:
+   dark base #0E1116, amber accent #FFB020, glassmorphism panels.
+   Fonts: Sora (headings), Manrope (body), DM Mono (labels/eyebrows).
+--------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Manrope:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 216 24% 7%;
+    --foreground: 220 11% 96%;
+
+    --card: 216 24% 7%;
+    --card-foreground: 220 11% 96%;
+
+    --popover: 215 18% 14%;
+    --popover-foreground: 220 11% 96%;
+
+    --primary: 40 100% 56%;
+    --primary-foreground: 216 24% 7%;
+
+    --secondary: 215 18% 14%;
+    --secondary-foreground: 220 11% 96%;
+
+    --muted: 215 18% 14%;
+    --muted-foreground: 215 9% 59%;
+
+    --accent: 40 100% 56%;
+    --accent-foreground: 216 24% 7%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 220 11% 96%;
+
+    --border: 215 16% 20%;
+    --input: 215 16% 20%;
+    --ring: 40 100% 56%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 216 24% 7%;
+    --sidebar-foreground: 220 11% 96%;
+    --sidebar-primary: 40 100% 56%;
+    --sidebar-primary-foreground: 216 24% 7%;
+    --sidebar-accent: 215 18% 14%;
+    --sidebar-accent-foreground: 220 11% 96%;
+    --sidebar-border: 215 16% 20%;
+    --sidebar-ring: 40 100% 56%;
+
+    --header-h: 72px;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 104px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink text-graphite;
+    font-family: Manrope, system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: Sora, system-ui, sans-serif;
+  }
+
+  /* No hanging words: `balance` evens headline line lengths, `pretty`
+     stops paragraphs ending on a lone orphan. */
+  h1, h2, h3, h4, h5, h6, blockquote, figcaption, legend, summary {
+    text-wrap: balance;
+  }
+
+  p, li, dd, dt {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: rgba(255, 176, 32, 0.28);
+    color: #f4f5f7;
+  }
+
+  :focus-visible {
+    outline: 2px solid #ffb020;
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* --- Layout ----------------------------------------------------------- */
+  .shell {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    max-width: 1360px;
+  }
+
+  /* --- Type scale (clamped, same values as the prototype) --------------- */
+  .t-hero {
+    font-family: Sora, system-ui, sans-serif;
+    font-weight: 800;
+    font-size: clamp(42px, 5vw, 72px);
+    line-height: 1.04;
+    letter-spacing: -0.028em;
+    text-wrap: balance;
+  }
+  .t-h2 {
+    font-family: Sora, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: clamp(32px, 4.6vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    color: #f4f5f7;
+    text-wrap: balance;
+  }
+  .t-h3 {
+    font-family: Sora, system-ui, sans-serif;
+    font-weight: 600;
+    font-size: clamp(20px, 2vw, 26px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  .t-lead {
+    font-size: clamp(16.5px, 1.25vw, 18.5px);
+    line-height: 1.65;
+    color: #8a93a0;
+    text-wrap: pretty;
+  }
+  .mono {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .mono-num {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    letter-spacing: -0.01em;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- Glass panels ----------------------------------------------------- */
+  .glass {
+    position: relative;
+    background: rgba(255, 255, 255, 0.04);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.13), 0 20px 44px -22px rgba(0, 0, 0, 0.9);
+  }
+  .glass-solid {
+    background: linear-gradient(180deg, rgba(28, 35, 44, 0.92), rgba(21, 26, 33, 0.94));
+  }
+  .glass-hover {
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.45s ease,
+      box-shadow 0.45s ease, background-color 0.45s ease;
+  }
+  .glass-hover:hover {
+    transform: translateY(-6px);
+    border-color: rgba(255, 176, 32, 0.45);
+    background: rgba(255, 255, 255, 0.055);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.18), 0 0 0 1px rgba(255, 176, 32, 0.12),
+      0 26px 60px -26px rgba(0, 0, 0, 0.95), 0 0 44px -6px rgba(255, 176, 32, 0.28);
+  }
+  .glass-hover:hover .icon3d {
+    transform: scale(1.08) translateY(-2px);
+  }
+  .icon3d {
+    transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
+  }
+
+  /* --- Buttons ---------------------------------------------------------- */
+  .btn-amber {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ffc95a, #ffb020 55%, #eda015);
+    color: #0e1116;
+    font-family: Manrope, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    padding: 15px 28px;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.55), 0 0 40px rgba(255, 176, 32, 0.35),
+      0 10px 24px -12px rgba(0, 0, 0, 0.9);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, filter 0.3s ease;
+    will-change: transform;
+  }
+  .btn-amber:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.6), 0 0 64px rgba(255, 176, 32, 0.6),
+      0 14px 30px -12px rgba(0, 0, 0, 0.9);
+  }
+  .btn-amber:active {
+    transform: translateY(0);
+  }
+  .btn-amber:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 999px;
+    padding: 14px 27px;
+    color: #f4f5f7;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.03);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s ease,
+      background-color 0.3s ease;
+  }
+  .btn-ghost:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 176, 32, 0.55);
+    background: rgba(255, 176, 32, 0.07);
+  }
+
+  /* --- Decoration ------------------------------------------------------- */
+  .orb {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-amber {
+    background: radial-gradient(circle, rgba(255, 176, 32, 0.38), rgba(255, 176, 32, 0) 70%);
+  }
+  .orb-ice {
+    background: radial-gradient(circle, rgba(156, 201, 232, 0.18), rgba(156, 201, 232, 0) 70%);
+  }
+  .hairline {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  }
+
+  /* --- Form fields ------------------------------------------------------ */
+  .field-input {
+    width: 100%;
+    background: rgba(9, 12, 16, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 13px 15px;
+    color: #f4f5f7;
+    font-family: Manrope, sans-serif;
+    font-size: 15.5px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  }
+  .field-input::placeholder {
+    color: #565f6b;
+  }
+  .field-input:focus {
+    outline: none;
+    border-color: rgba(255, 176, 32, 0.65);
+    background: rgba(9, 12, 16, 0.85);
+    box-shadow: 0 0 0 3px rgba(255, 176, 32, 0.14);
+  }
+  .field-label {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 11px;
+    font-weight: 500;
+    color: #8a93a0;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* --- Scroll reveal / entrance ---------------------------------------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .hero-in {
+    opacity: 0;
+    animation: heroIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  .pulse-glow {
+    animation: pulseGlow 2.8s ease-in-out infinite;
+  }
+  .float-slow {
+    animation: floatY 6s ease-in-out infinite;
+  }
+  .bob {
+    animation: floatY 5.2s ease-in-out infinite;
+  }
+  .ring-pulse {
+    animation: ringPulse 3.2s ease-out infinite;
+  }
+  .dash-flow {
+    animation: dashFlow 1.6s linear infinite;
+  }
+  .drive-x {
+    animation: driveX 9s linear infinite;
+  }
+  .spin-slow {
+    animation: spinSlow 8s linear infinite;
+  }
+  .blink-dot {
+    animation: blinkDot 2.2s ease-in-out infinite;
+  }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(-8px); }
+  50% { transform: translateY(8px); }
+}
+@keyframes heroIn {
+  0% { opacity: 0; transform: translateY(28px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.55), 0 0 36px rgba(255, 176, 32, 0.32),
+      0 10px 24px -12px rgba(0, 0, 0, 0.9);
+  }
+  50% {
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.6), 0 0 72px rgba(255, 176, 32, 0.68),
+      0 12px 28px -12px rgba(0, 0, 0, 0.9);
+  }
+}
+@keyframes ringPulse {
+  0% { transform: scale(0.7); opacity: 0.85; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+@keyframes dashFlow {
+  to { stroke-dashoffset: -48; }
+}
+@keyframes driveX {
+  0% { transform: translateX(-8%); }
+  100% { transform: translateX(104%); }
+}
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+@keyframes blinkDot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 rgba(58, 214, 129, 0.55); }
+  50% { opacity: 0.55; box-shadow: 0 0 0 7px rgba(58, 214, 129, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
+  .hero-in { opacity: 1 !important; animation: none !important; }
+}
