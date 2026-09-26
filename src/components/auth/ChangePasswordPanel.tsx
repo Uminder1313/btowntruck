@@ -5,6 +5,7 @@ import { Field, Panel } from '@/components/dashboard/ui';
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 import { changePasswordSchema } from '@/lib/password-reset';
 import { fieldErrors } from '@/lib/validation';
+import { API_BASE } from '@/lib/api';
 
 /**
  * /account — "Change password" section.
@@ -38,7 +39,7 @@ export const ChangePasswordPanel: React.FC = () => {
     try {
       const sessionToken = localStorage.getItem('btown_session_token');
 
-const response = await fetch('http://localhost:3001/api/auth/change-password', {
+const response = await fetch(`${API_BASE}/api/auth/change-password`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

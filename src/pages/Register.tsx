@@ -6,6 +6,7 @@ import AuthShell from '@/components/auth/AuthShell';
 import { Field } from '@/components/dashboard/ui';
 import { useAuth } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { API_BASE } from '@/lib/api';
 import { callFn } from '@/lib/public-data';
 import { registerSchema, fieldErrors, PASSWORD_MIN } from '@/lib/validation';
 
@@ -99,7 +100,7 @@ const Register: React.FC = () => {
          it to the account, so the credentials work immediately. The platform's
          sign-up is not used at all, and nobody is auto-signed-in — the person
          signs in deliberately on the next screen. */
-      const response = await fetch('http://localhost:3001/api/auth/register', {
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

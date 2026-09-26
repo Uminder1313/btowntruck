@@ -7,6 +7,7 @@ import { Field } from '@/components/dashboard/ui';
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 import { db } from '@/lib/db';
 import { passwordSchema } from '@/lib/validation';
+import { API_BASE } from '@/lib/api';
 
 /**
  * /reset-password — where BOTH kinds of reset arrive.
@@ -53,7 +54,7 @@ const ResetPassword: React.FC = () => {
       if (token) {
         try {
            const response = await fetch(
-  'http://localhost:3001/api/auth/reset-link/check',
+  `${API_BASE}/api/auth/reset-link/check`,
   {
     method: 'POST',
     headers: {
@@ -112,7 +113,7 @@ const status = response.status;
     try {
       if (token) {
         const response = await fetch(
-  'http://localhost:3001/api/auth/reset-link/redeem',
+  `${API_BASE}/api/auth/reset-link/redeem`,
   {
     method: 'POST',
     headers: {

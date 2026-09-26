@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { Check, Clock, Copy, KeyRound, Loader2, X } from 'lucide-react';
 import { expiryLabel } from '@/lib/password-reset';
 import type { Profile } from '@/lib/auth';
-
+import { API_BASE } from '@/lib/api';
 /**
  * Dashboard → Users → "Generate reset link".
  *
@@ -39,7 +39,7 @@ export const GenerateResetLink: React.FC<{ user: Pick<Profile, 'id' | 'email' | 
       const sessionToken = localStorage.getItem('btown_session_token');
 
 const response = await fetch(
-  'http://localhost:3001/api/auth/reset-link',
+  `${API_BASE}/api/auth/reset-link`,
   {
     method: 'POST',
     headers: {

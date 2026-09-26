@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/db';
 import { getSessionToken } from '@/lib/session-store';
+import { API_BASE } from '@/lib/api';
 import {
   FALLBACK_FAQS,
   FALLBACK_NOTES,
@@ -36,7 +37,7 @@ export function usePublicContent(): PublicContent {
     let cancelled = false;
 
     (async () => {
-      const response = await fetch('http://localhost:3001/api/public/content');
+      const response = await fetch(`${API_BASE}/api/public/content`);
 
 if (!response.ok) {
   throw new Error('Failed to load public content');
@@ -64,7 +65,7 @@ const f = { data: data.faqs };
 }
 
 /** Base URL for this project's edge functions. */
-export const FN_BASE = 'http://localhost:3001/api';
+export const FN_BASE = `${API_BASE}/api`;
 
 /** Anon key is a public, rate-limited identifier — safe in the browser. */
 

@@ -40,7 +40,7 @@ export type ServiceRequest = {
   updated_at: string;
 };
 
-const API_BASE = 'http://localhost:3001';
+import { API_BASE } from '@/lib/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('btown_session_token');

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE } from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2, ShieldAlert, UserPlus } from 'lucide-react';
 import { useAuth, isAdmin, type Profile } from '@/lib/auth';
@@ -44,7 +45,7 @@ export const UsersAdmin: React.FC = () => {
 
   try {
     const response = await fetch(
-      'http://localhost:3001/api/admin/users',
+      `${API_BASE}/api/admin/users`,
       {
         method: 'GET',
         headers: {
@@ -92,7 +93,7 @@ export const UsersAdmin: React.FC = () => {
     const token = getSessionToken();
 
 const response = await fetch(
-  `http://localhost:3001/api/admin/users/${row.id}/roles`,
+  `${API_BASE}/api/admin/users/${row.id}/roles`,
   {
     method: 'POST',
     headers: {
@@ -144,7 +145,7 @@ const status = response.status;
 
   try {
     const response = await fetch(
-      `http://localhost:3001/api/admin/users/${row.id}/status`,
+      `${API_BASE}/api/admin/users/${row.id}/status`,
       {
         method: 'POST',
         headers: {
@@ -198,7 +199,7 @@ const create = async (e: React.FormEvent) => {
     const token = getSessionToken();
 
     const response = await fetch(
-      'http://localhost:3001/api/admin/users',
+      `${API_BASE}/api/admin/users`,
       {
         method: 'POST',
         headers: {
@@ -444,7 +445,7 @@ export const AuditLog: React.FC = () => {
       return;
     }
     (async () => {
-      const response = await fetch('http://localhost:3001/api/admin/audit-log');
+      const response = await fetch(`${API_BASE}/api/admin/audit-log`);
 
 if (!response.ok) {
   toast.error('Could not load the audit log.');

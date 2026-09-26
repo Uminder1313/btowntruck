@@ -7,6 +7,8 @@ import { Field } from '@/components/dashboard/ui';
 import { callFn } from '@/lib/public-data';
 import { forgotPasswordSchema } from '@/lib/password-reset';
 import { fieldErrors } from '@/lib/validation';
+import { API_BASE } from '@/lib/api';
+
 
 /**
  * /forgot-password (customer) and /admin/forgot-password (administrator).
@@ -46,7 +48,7 @@ const ForgotPassword: React.FC<{ variant?: 'customer' | 'admin' }> = ({ variant 
     setBusy(true);
     try {
   const response = await fetch(
-    'http://localhost:3001/api/auth/reset-link/request',
+    `${API_BASE}/api/auth/reset-link/request`,
     {
       method: 'POST',
       headers: {

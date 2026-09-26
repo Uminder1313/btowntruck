@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '@/lib/api';
 import { toast } from 'sonner';
 import { CheckCircle2, Loader2, Phone } from 'lucide-react';
 import {
@@ -75,7 +76,7 @@ export const Contact: React.FC = () => {
 
     try {
       const response = await fetch(
-        'http://localhost:3001/api/public/submit-request',
+        `${API_BASE}/api/public/submit-request`,
         {
           method: 'POST',
           headers: {

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { db } from '@/lib/db';
 import { PHONE, PHONE_HREF } from '@/data/site-content';
-
+import { API_BASE } from '@/lib/api';
 /* ---------------------------------------------------------------------------
    Editable public-site copy.
 
@@ -41,7 +41,7 @@ useEffect(() => {
   (async () => {
     try {
       const response = await fetch(
-        'http://localhost:3001/api/content/site-content'
+        `${API_BASE}/api/content/site-content`
       );
 
       if (!response.ok) {

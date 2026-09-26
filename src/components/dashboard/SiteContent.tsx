@@ -6,7 +6,7 @@ import { useAuth, isStaff } from '@/lib/auth';
 import { Panel, PageTitle, Spinner, EmptyState, ReadOnlyNote } from '@/components/dashboard/ui';
 import type { SiteContentRow } from '@/lib/site-copy';
 
-const API_BASE = 'http://localhost:3001';
+import { API_BASE } from '@/lib/api';
 
 const getAuthHeaders = () => {
   const token = getSessionToken();

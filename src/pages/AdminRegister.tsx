@@ -7,6 +7,7 @@ import { Field } from '@/components/dashboard/ui';
 import { useAuth, homeFor } from '@/lib/auth';
 import { callFn } from '@/lib/public-data';
 import { registerSchema, fieldErrors, PASSWORD_MIN } from '@/lib/validation';
+import { API_BASE } from '@/lib/api';
 
 /**
  * /admin/register — administrator registration. Not linked from anywhere public.
@@ -89,7 +90,7 @@ const AdminRegister: React.FC = () => {
     setErrors({});
     setBusy(true);
     try {
-      const response = await fetch('http://localhost:3001/api/auth/admin-register', {
+      const response = await fetch(`${API_BASE}/api/auth/admin-register`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

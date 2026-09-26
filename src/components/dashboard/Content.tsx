@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
+import { API_BASE } from '@/lib/api';
 import { toast } from 'sonner';
 
 import { Loader2, Plus, Star, Trash2 } from 'lucide-react';
@@ -118,7 +118,7 @@ export const ReviewsAdmin: React.FC = () => {
       const sessionToken = localStorage.getItem('btown_session_token');
 
       const response = await fetch(
-        'http://localhost:3001/api/admin/content/reviews',
+        `${API_BASE}/api/admin/content/reviews`,
         {
           method: 'GET',
           headers: {
@@ -158,7 +158,7 @@ export const ReviewsAdmin: React.FC = () => {
       const sessionToken = localStorage.getItem('btown_session_token');
 
       const response = await fetch(
-        `http://localhost:3001/api/admin/content/reviews/${row.id}/publish`,
+        `${API_BASE}/api/admin/content/reviews/${row.id}/publish`,
         {
           method: 'PATCH',
           headers: {
@@ -222,7 +222,7 @@ export const ReviewsAdmin: React.FC = () => {
       const sessionToken = localStorage.getItem('btown_session_token');
 
       const response = await fetch(
-        `http://localhost:3001/api/admin/content/reviews/${row.id}`,
+        `${API_BASE}/api/admin/content/reviews/${row.id}`,
         {
           method: 'PATCH',
           headers: {
@@ -289,7 +289,7 @@ export const ReviewsAdmin: React.FC = () => {
       const sessionToken = localStorage.getItem('btown_session_token');
 
       const response = await fetch(
-        'http://localhost:3001/api/admin/content/reviews',
+        `${API_BASE}/api/admin/content/reviews`,
         {
           method: 'POST',
           headers: {
@@ -618,7 +618,7 @@ export const NotesAdmin: React.FC = () => {
       const sessionToken = localStorage.getItem('btown_session_token');
 
       const response = await fetch(
-        'http://localhost:3001/api/admin/content/road-notes',
+        `${API_BASE}/api/admin/content/road-notes`,
         {
           method: 'GET',
           headers: {
@@ -660,7 +660,7 @@ export const NotesAdmin: React.FC = () => {
       const sessionToken = localStorage.getItem('btown_session_token');
 
       const response = await fetch(
-        `http://localhost:3001/api/admin/content/road-notes/${row.id}/publish`,
+        `${API_BASE}/api/admin/content/road-notes/${row.id}/publish`,
         {
           method: 'PATCH',
           headers: {
@@ -729,7 +729,7 @@ export const NotesAdmin: React.FC = () => {
       const sessionToken = localStorage.getItem('btown_session_token');
 
       const response = await fetch(
-        `http://localhost:3001/api/admin/content/road-notes/${row.id}`,
+        `${API_BASE}/api/admin/content/road-notes/${row.id}`,
         {
           method: 'PATCH',
           headers: {
@@ -810,7 +810,7 @@ export const NotesAdmin: React.FC = () => {
       );
 
       const response = await fetch(
-        'http://localhost:3001/api/admin/content/road-notes',
+        `${API_BASE}/api/admin/content/road-notes`,
         {
           method: 'POST',
           headers: {
@@ -1184,7 +1184,7 @@ export const FaqsAdmin: React.FC = () => {
   const load = async () => {
     try {
       const response = await fetch(
-        'http://localhost:3001/api/admin/content/faqs',
+        `${API_BASE}/api/admin/content/faqs`,
         {
           method: 'GET',
           headers: getHeaders(),
@@ -1216,7 +1216,7 @@ export const FaqsAdmin: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/admin/content/faqs/${row.id}/publish`,
+        `${API_BASE}/api/admin/content/faqs/${row.id}/publish`,
         {
           method: 'PATCH',
           headers: {
@@ -1273,7 +1273,7 @@ export const FaqsAdmin: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/admin/content/faqs/${row.id}/reorder`,
+        `${API_BASE}/api/admin/content/faqs/${row.id}/reorder`,
         {
           method: 'PATCH',
           headers: {
@@ -1320,7 +1320,7 @@ export const FaqsAdmin: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/admin/content/faqs/${row.id}`,
+        `${API_BASE}/api/admin/content/faqs/${row.id}`,
         {
           method: 'PATCH',
           headers: {
@@ -1369,7 +1369,7 @@ export const FaqsAdmin: React.FC = () => {
   const remove = async (row: FaqRow) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/admin/content/faqs/${row.id}`,
+        `${API_BASE}/api/admin/content/faqs/${row.id}`,
         {
           method: 'DELETE',
           headers: getHeaders(),
@@ -1412,7 +1412,7 @@ export const FaqsAdmin: React.FC = () => {
 
     try {
       const response = await fetch(
-        'http://localhost:3001/api/admin/content/faqs',
+        `${API_BASE}/api/admin/content/faqs`,
         {
           method: 'POST',
           headers: {
