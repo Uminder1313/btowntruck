@@ -22,7 +22,14 @@ app.use(cors({
 
 app.use(express.json());
 
+// Serve the React production build
+const DIST_DIR = path.join(__dirname, "..", "dist");
+app.use(express.static(DIST_DIR));
+
 const SITE_MEDIA_DIR = path.join(__dirname, "uploads", "site-media");
+
+// Serve uploaded site images
+app.use("/site-media", express.static(SITE_MEDIA_DIR));
 
 const siteMediaStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
@@ -3266,6 +3273,16 @@ app.post(
     }
   },
 );
+
+// React SPA fallback
+// Must come after all API routes.
+app.use((req, res, next) => {
+  if (req.method === "GET" && !req.path.startsWith("/api/")) {
+    return res.sendFile(path.join(DIST_DIR, "index.html"));
+  }
+
+  next();
+});
 
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
