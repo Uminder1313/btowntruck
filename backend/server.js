@@ -3284,6 +3284,21 @@ app.use((req, res, next) => {
   next();
 });
 
+pool.query(`
+  SELECT
+    current_database() AS database,
+    current_user AS user,
+    current_schema() AS schema,
+    current_setting('search_path') AS search_path
+`)
+.then(result => {
+  console.log("=== DATABASE CHECK ===");
+  console.log(result.rows[0]);
+})
+.catch(error => {
+  console.error("=== DATABASE CHECK ERROR ===", error.message);
+});
+
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
