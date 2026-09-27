@@ -74,6 +74,22 @@ app.use(
   }),
 );
 
+const SUPER_ADMIN_EMAIL = "uminder1313@gmail.com";
+
+async function isSuperAdmin(userId) {
+  const result = await pool.query(
+    `
+    SELECT 1
+    FROM "prj_-jPU4p7xAmeh".profiles
+    WHERE id = $1
+      AND LOWER(email) = LOWER($2)
+    LIMIT 1
+    `,
+    [userId, SUPER_ADMIN_EMAIL]
+  );
+
+  return result.rowCount > 0;
+}
 app.post("/api/admin/users/:userId/status", async (req, res) => {
   try {
     // 1. Read the JWT
@@ -106,21 +122,12 @@ app.post("/api/admin/users/:userId/status", async (req, res) => {
       });
     }
 
-    // 3. Only administrators can change account status
-    const actorRolesResult = await pool.query(
-      `
-      SELECT role
-      FROM "prj_-jPU4p7xAmeh".user_roles
-      WHERE user_id = $1
-      `,
-      [actorId]
-    );
+    // 3. Only the superadmin can change account status
+    const superAdmin = await isSuperAdmin(actorId);
 
-    const actorRoles = actorRolesResult.rows.map((row) => row.role);
-
-    if (!actorRoles.includes("admin")) {
+    if (!superAdmin) {
       return res.status(403).json({
-        error: "Only administrators can change user status",
+        error: "Only the super administrator can change user status",
       });
     }
 
@@ -128,13 +135,28 @@ app.post("/api/admin/users/:userId/status", async (req, res) => {
     const { userId } = req.params;
     const { is_active } = req.body;
 
+    const targetSuperAdmin = await isSuperAdmin(userId);
+
+if (targetSuperAdmin) {
+  return res.status(403).json({
+    error: "The super administrator account cannot be modified",
+  });
+}
+
     if (typeof is_active !== "boolean") {
       return res.status(400).json({
         error: "is_active must be true or false",
       });
     }
 
-    // 5. Update the user's status
+    // 5. Prevent the superadmin from deactivating their own account
+    if (userId === actorId && is_active === false) {
+      return res.status(400).json({
+        error: "You cannot deactivate your own account",
+      });
+    }
+
+    // 6. Update the user's status
     const result = await pool.query(
       `
       UPDATE "prj_-jPU4p7xAmeh".profiles
@@ -164,7 +186,10 @@ app.post("/api/admin/users/:userId/status", async (req, res) => {
     });
   }
 });
+
+
 // Update user roles
+
 app.post("/api/admin/users/:userId/roles", async (req, res) => {
   try {
     // 1. Read the JWT from the Authorization header
@@ -197,27 +222,26 @@ app.post("/api/admin/users/:userId/roles", async (req, res) => {
       });
     }
 
-    // 3. Check that the logged-in user is an administrator
-    const actorRolesResult = await pool.query(
-      `
-      SELECT role
-      FROM "prj_-jPU4p7xAmeh".user_roles
-      WHERE user_id = $1
-      `,
-      [actorId]
-    );
+    // 3. Only the superadmin can change user roles
+    const superAdmin = await isSuperAdmin(actorId);
 
-    const actorRoles = actorRolesResult.rows.map((row) => row.role);
-
-    if (!actorRoles.includes("admin")) {
+    if (!superAdmin) {
       return res.status(403).json({
-        error: "Only administrators can change user roles",
+        error: "Only the super administrator can change user roles",
       });
     }
 
-    // 4. Get the target user and requested roles
+    // 4. Get target user and requested roles
     const { userId } = req.params;
     const { roles } = req.body;
+
+    const targetSuperAdmin = await isSuperAdmin(userId);
+
+if (targetSuperAdmin) {
+  return res.status(403).json({
+    error: "The super administrator account cannot be modified",
+  });
+}
 
     if (!Array.isArray(roles) || roles.length === 0) {
       return res.status(400).json({
@@ -226,11 +250,18 @@ app.post("/api/admin/users/:userId/roles", async (req, res) => {
     }
 
     // 5. Only allow legitimate application roles
-    const allowedRoles = ["admin", "dispatcher", "viewer", "customer"];
+    const allowedRoles = [
+      "admin",
+      "dispatcher",
+      "viewer",
+      "customer",
+    ];
 
-    const validRoles = roles.filter((role) =>
-      allowedRoles.includes(role)
-    );
+    const validRoles = [
+      ...new Set(
+        roles.filter((role) => allowedRoles.includes(role))
+      ),
+    ];
 
     if (validRoles.length === 0) {
       return res.status(400).json({
@@ -238,7 +269,24 @@ app.post("/api/admin/users/:userId/roles", async (req, res) => {
       });
     }
 
-    // 6. Remove existing roles
+    // 6. Make sure target user exists
+    const targetResult = await pool.query(
+      `
+      SELECT id
+      FROM "prj_-jPU4p7xAmeh".profiles
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [userId]
+    );
+
+    if (targetResult.rowCount === 0) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+    // 7. Remove existing roles
     await pool.query(
       `
       DELETE FROM "prj_-jPU4p7xAmeh".user_roles
@@ -247,7 +295,7 @@ app.post("/api/admin/users/:userId/roles", async (req, res) => {
       [userId]
     );
 
-    // 7. Add selected roles
+    // 8. Add selected roles
     for (const role of validRoles) {
       await pool.query(
         `
@@ -259,12 +307,15 @@ app.post("/api/admin/users/:userId/roles", async (req, res) => {
       );
     }
 
-    // 8. Keep profiles.role synchronized
+    // 9. Keep profiles.role synchronized
     const primaryRole =
-      validRoles.includes("admin") ? "admin" :
-      validRoles.includes("dispatcher") ? "dispatcher" :
-      validRoles.includes("viewer") ? "viewer" :
-      "customer";
+      validRoles.includes("admin")
+        ? "admin"
+        : validRoles.includes("dispatcher")
+        ? "dispatcher"
+        : validRoles.includes("viewer")
+        ? "viewer"
+        : "customer";
 
     await pool.query(
       `
@@ -288,6 +339,7 @@ app.post("/api/admin/users/:userId/roles", async (req, res) => {
     });
   }
 });
+
 
 // Validate local JWT session
 app.get("/api/auth/me", async (req, res) => {
