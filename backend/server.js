@@ -3299,6 +3299,18 @@ pool.query(`
   console.error("=== DATABASE CHECK ERROR ===", error.message);
 });
 
+pool.query(`
+  SELECT pg_get_functiondef(
+    '"prj_-jPU4p7xAmeh".log_audit(uuid, text, text, text, text, jsonb)'::regprocedure
+  ) AS definition
+`)
+.then(result => {
+  console.log("=== LOG_AUDIT DEFINITION ===");
+  console.log(result.rows[0]?.definition);
+})
+.catch(error => {
+  console.error("=== FUNCTION CHECK ERROR ===", error.message);
+});
 app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
