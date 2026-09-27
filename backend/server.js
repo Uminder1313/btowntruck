@@ -7,7 +7,16 @@ const { Pool } = require("pg");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-require("dotenv").config();
+require("dotenv").config({
+  path: path.join(__dirname, "..", ".env"),
+});
+
+console.log(
+  "BREVO API KEY:",
+  process.env.BREVO_API_KEY
+    ? `${process.env.BREVO_API_KEY.substring(0, 12)}... length=${process.env.BREVO_API_KEY.length}`
+    : "MISSING"
+);
 
 const mailTransporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -1013,37 +1022,80 @@ const resetUrl =
   `${frontendOrigin}/reset-password?token=${rawToken}` +
   `${tokenScope === "admin" ? "&scope=admin" : ""}`;
 
-await mailTransporter.sendMail({
-  from: `"${process.env.SMTP_FROM_NAME || "BtownTruck"}" <${process.env.SMTP_FROM_EMAIL}>`,
-  to: user.email,
-  subject: "BtownTruck Password Reset",
-  text: `You requested a password reset for your BtownTruck account.
+const brevoResponse = await fetch(
+  "https://api.brevo.com/v3/smtp/email",
+  {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "api-key": process.env.BREVO_API_KEY,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      sender: {
+        name: process.env.SMTP_FROM_NAME || "BtownTruck",
+        email: process.env.SMTP_FROM_EMAIL,
+      },
+      to: [
+        {
+          email: user.email,
+        },
+      ],
+      subject: "Reset your BtownTruck password",
+      textContent: `You requested a password reset for your BtownTruck account.
 
-Use the following link to reset your password:
+Use this link to reset your password:
 
 ${resetUrl}
 
-This link will expire in 1 hour.
+This link expires in 1 hour.
 
 If you did not request this password reset, you can safely ignore this email.`,
-  html: `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
-      <h2>BtownTruck Password Reset</h2>
 
-      <p>You requested a password reset for your BtownTruck account.</p>
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
+          <h2>BtownTruck Password Reset</h2>
 
-      <p>
-        <a href="${resetUrl}"
-           style="display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;">
-          Reset Password
-        </a>
-      </p>
+          <p>You requested a password reset for your BtownTruck account.</p>
 
-      <p>This link will expire in <strong>1 hour</strong>.</p>
+          <p>
+            <a href="${resetUrl}"
+               style="display:inline-block;padding:12px 20px;background:#f59e0b;color:#111;text-decoration:none;border-radius:6px;">
+              Reset your password
+            </a>
+          </p>
 
-      <p>If you did not request this password reset, you can safely ignore this email.</p>
-    </div>
-  `,
+          <p>This link expires in 1 hour.</p>
+
+          <p>
+            If you did not request this password reset, you can safely ignore this email.
+          </p>
+        </div>
+      `,
+    }),
+  }
+);
+
+const brevoData = await brevoResponse.json();
+
+console.log("Brevo email response:", brevoData);
+
+if (!brevoResponse.ok) {
+  throw new Error(
+    brevoData?.message ||
+    `Brevo API returned HTTP ${brevoResponse.status}`
+  );
+}
+
+console.log(
+  "Password reset email accepted by Brevo:",
+  user.email
+);
+
+return res.status(200).json({
+  success: true,
+  email_delivery: true,
+  expires_at: expiresAt.toISOString(),
 });
 
 console.log("Password reset email sent to:", user.email);
@@ -1323,34 +1375,80 @@ app.post("/api/auth/reset-link/request", async (req, res) => {
       `${tokenScope === "admin" ? "&scope=admin" : ""}`;
 
 try {
-  await mailTransporter.sendMail({
-    from: `"${process.env.SMTP_FROM_NAME || "BtownTruck"}" <${process.env.SMTP_FROM_EMAIL}>`,
-    to: user.email,
-    subject: "Reset your BtownTruck password",
-    text: `You requested a password reset for your BtownTruck account.
+  const brevoResponse = await fetch(
+    "https://api.brevo.com/v3/smtp/email",
+    {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: {
+          name: process.env.SMTP_FROM_NAME || "BtownTruck",
+          email: process.env.SMTP_FROM_EMAIL,
+        },
+        to: [
+          {
+            email: user.email,
+          },
+        ],
+        subject: "Reset your BtownTruck password",
+        textContent: `You requested a password reset for your BtownTruck account.
 
 Use this link to reset your password:
+
 ${resetUrl}
 
 This link expires in 1 hour.
 
 If you did not request this password reset, you can safely ignore this email.`,
-    html: `
-      <p>You requested a password reset for your BtownTruck account.</p>
+        htmlContent: `
+          <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: auto;">
+            <h2>BtownTruck Password Reset</h2>
 
-      <p>
-        <a href="${resetUrl}">
-          Reset your password
-        </a>
-      </p>
+            <p>You requested a password reset for your BtownTruck account.</p>
 
-      <p>This link expires in 1 hour.</p>
+            <p>
+              <a
+                href="${resetUrl}"
+                style="
+                  display: inline-block;
+                  padding: 12px 20px;
+                  background: #f59e0b;
+                  color: #111;
+                  text-decoration: none;
+                  border-radius: 6px;
+                "
+              >
+                Reset your password
+              </a>
+            </p>
 
-      <p>If you did not request this password reset, you can safely ignore this email.</p>
-    `,
-  });
+            <p>This link expires in 1 hour.</p>
 
-  console.log("Password reset email sent to:", user.email);
+            <p>
+              If you did not request this password reset, you can safely ignore this email.
+            </p>
+          </div>
+        `,
+      }),
+    }
+  );
+
+  const brevoData = await brevoResponse.json();
+
+  console.log("Brevo email response:", brevoData);
+
+  if (!brevoResponse.ok) {
+    throw new Error(
+      brevoData?.message ||
+      `Brevo API returned HTTP ${brevoResponse.status}`
+    );
+  }
+
+  console.log("Password reset email accepted by Brevo:", user.email);
 
   return res.status(200).json({
     success: true,
