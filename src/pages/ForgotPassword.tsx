@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { ArrowLeft, Info, Loader2, Mail } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Loader2, Mail } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import { Field } from '@/components/dashboard/ui';
 import { callFn } from '@/lib/public-data';
@@ -47,6 +47,7 @@ const ForgotPassword: React.FC<{ variant?: 'customer' | 'admin' }> = ({ variant 
     setErrors({});
     setBusy(true);
     try {
+
   const response = await fetch(
     `${API_BASE}/api/auth/reset-link/request`,
     {
@@ -72,9 +73,7 @@ const ForgotPassword: React.FC<{ variant?: 'customer' | 'admin' }> = ({ variant 
   setSent(true);
 
   /* One neutral answer, whatever actually happened. */
-  toast.success(
-    'If an account exists for that address, reset instructions have been sent.'
-  );
+  toast.success('Password reset email sent successfully.');
 } catch {
   toast.error('Network problem. Please try again.');
 } finally {
@@ -105,18 +104,18 @@ const ForgotPassword: React.FC<{ variant?: 'customer' | 'admin' }> = ({ variant 
             If an account exists for that address, reset instructions have been sent.
           </p>
 
-          {emailDelivery !== true && (
-            <div
-              role="status"
-              className="flex items-start gap-3 rounded-2xl border border-amber/30 bg-amber/[0.07] px-4 py-3.5"
-            >
-              <Info size={16} className="mt-0.5 flex-none text-amber" />
-              <p className="mono text-[10.5px] leading-relaxed text-amber">
-                Email delivery isn&rsquo;t configured on this site yet. Ask an administrator to
-                generate a reset link for you from Dashboard &rarr; Users.
-              </p>
-            </div>
-          )}
+          {emailDelivery === true && (
+  <div
+    role="status"
+    className="flex items-start gap-3 rounded-2xl border border-green-500/30 bg-green-500/[0.07] px-4 py-3.5"
+  >
+    <CheckCircle2 size={16} className="mt-0.5 flex-none text-green-500" />
+    <p className="mono text-[10.5px] leading-relaxed text-green-400">
+      Reset instructions have been sent to your email address. Please check your
+      inbox and spam folder.
+    </p>
+  </div>
+)}
 
           <button
             type="button"

@@ -1,12 +1,23 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const nodemailer = require("nodemailer");
 const multer = require("multer");
 const { Pool } = require("pg");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 require("dotenv").config();
+
+const mailTransporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT || 587),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 const app = express();
 
@@ -45,6 +56,7 @@ const siteMediaStorage = multer.diskStorage({
     cb(null, `${Date.now()}-${base || "image"}${ext}`);
   },
 });
+
 
 const uploadSiteMedia = multer({
   storage: siteMediaStorage,
@@ -414,9 +426,9 @@ const pool = new Pool({
   database: process.env.DATABASE_URL ? undefined : process.env.DB_NAME,
   user: process.env.DATABASE_URL ? undefined : process.env.DB_USER,
   password: process.env.DATABASE_URL ? undefined : process.env.DB_PASSWORD,
-  ssl: process.env.DATABASE_URL
-    ? { rejectUnauthorized: false }
-    : undefined,
+  ssl: process.env.NODE_ENV === "production"
+  ? { rejectUnauthorized: false }
+  : undefined,
 });
 // Database health check
 app.get("/api/health", async (req, res) => {
@@ -997,16 +1009,50 @@ app.post("/api/auth/reset-link", async (req, res) => {
       req.headers.origin ||
       "http://localhost:8081";
 
-    const resetUrl =
-      `${frontendOrigin}/reset-password?token=${rawToken}` +
-      `${user.role === "admin" ? "&scope=admin" : ""}`;
+const resetUrl =
+  `${frontendOrigin}/reset-password?token=${rawToken}` +
+  `${tokenScope === "admin" ? "&scope=admin" : ""}`;
 
-    return res.status(200).json({
-      success: true,
-      url: resetUrl,
-      expires_at: expiresAt.toISOString(),
-      scope: user.role === "admin" ? "admin" : "customer",
-    });
+await mailTransporter.sendMail({
+  from: `"${process.env.SMTP_FROM_NAME || "BtownTruck"}" <${process.env.SMTP_FROM_EMAIL}>`,
+  to: user.email,
+  subject: "BtownTruck Password Reset",
+  text: `You requested a password reset for your BtownTruck account.
+
+Use the following link to reset your password:
+
+${resetUrl}
+
+This link will expire in 1 hour.
+
+If you did not request this password reset, you can safely ignore this email.`,
+  html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+      <h2>BtownTruck Password Reset</h2>
+
+      <p>You requested a password reset for your BtownTruck account.</p>
+
+      <p>
+        <a href="${resetUrl}"
+           style="display:inline-block;padding:12px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;">
+          Reset Password
+        </a>
+      </p>
+
+      <p>This link will expire in <strong>1 hour</strong>.</p>
+
+      <p>If you did not request this password reset, you can safely ignore this email.</p>
+    </div>
+  `,
+});
+
+console.log("Password reset email sent to:", user.email);
+
+return res.status(200).json({
+  success: true,
+  email_delivery: true,
+  expires_at: expiresAt.toISOString(),
+});
   } catch (error) {
     console.error("Reset link generation error:", error);
 
@@ -1189,6 +1235,7 @@ app.post("/api/auth/reset-link/redeem", async (req, res) => {
 
 // Request a local password reset link
 app.post("/api/auth/reset-link/request", async (req, res) => {
+  console.log("FORGOT PASSWORD REQUEST RECEIVED:", req.body.email);
   try {
     const { email, honeypot, scope } = req.body;
 
@@ -1275,13 +1322,48 @@ app.post("/api/auth/reset-link/request", async (req, res) => {
       `${frontendOrigin}/reset-password?token=${rawToken}` +
       `${tokenScope === "admin" ? "&scope=admin" : ""}`;
 
-    console.log("Local password reset link:", resetUrl);
+try {
+  await mailTransporter.sendMail({
+    from: `"${process.env.SMTP_FROM_NAME || "BtownTruck"}" <${process.env.SMTP_FROM_EMAIL}>`,
+    to: user.email,
+    subject: "Reset your BtownTruck password",
+    text: `You requested a password reset for your BtownTruck account.
 
-    return res.status(200).json({
-      success: true,
-      email_delivery: false,
-      expires_at: expiresAt.toISOString(),
-    });
+Use this link to reset your password:
+${resetUrl}
+
+This link expires in 1 hour.
+
+If you did not request this password reset, you can safely ignore this email.`,
+    html: `
+      <p>You requested a password reset for your BtownTruck account.</p>
+
+      <p>
+        <a href="${resetUrl}">
+          Reset your password
+        </a>
+      </p>
+
+      <p>This link expires in 1 hour.</p>
+
+      <p>If you did not request this password reset, you can safely ignore this email.</p>
+    `,
+  });
+
+  console.log("Password reset email sent to:", user.email);
+
+  return res.status(200).json({
+    success: true,
+    email_delivery: true,
+    expires_at: expiresAt.toISOString(),
+  });
+} catch (emailError) {
+  console.error("Password reset email failed:", emailError);
+
+  return res.status(500).json({
+    error: "Could not send password reset email",
+  });
+}
   } catch (error) {
     console.error("Password reset request error:", error);
 
