@@ -104,6 +104,8 @@ const Login: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
+            autoFocus
+            enterKeyHint="next"
             placeholder="you@example.com"
             aria-invalid={!!errors.email}
           />
@@ -144,6 +146,10 @@ const Login: React.FC = () => {
             </>
           )}
         </button>
+
+        <p className="mono text-center text-[9.5px] text-graphite/80">
+          Secure customer access - Your account information is protected.
+        </p>
 
         <Link
           to="/forgot-password"

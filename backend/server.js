@@ -1140,6 +1140,9 @@ app.post("/api/auth/reset-link", async (req, res) => {
 
     const baseUrl = `${req.protocol}://${req.get("host")}`;
 
+    const tokenScope =
+  user.role === "admin" ? "admin" : "customer";
+
     const frontendOrigin =
       req.headers.origin ||
       "http://localhost:8081";
@@ -1220,17 +1223,12 @@ console.log(
 
 return res.status(200).json({
   success: true,
+  url: resetUrl,
   email_delivery: true,
   expires_at: expiresAt.toISOString(),
+  scope: tokenScope,
 });
 
-console.log("Password reset email sent to:", user.email);
-
-return res.status(200).json({
-  success: true,
-  email_delivery: true,
-  expires_at: expiresAt.toISOString(),
-});
   } catch (error) {
     console.error("Reset link generation error:", error);
 
