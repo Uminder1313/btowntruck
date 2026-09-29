@@ -1,7 +1,7 @@
 import React from 'react';
 import { Check, X } from 'lucide-react';
-import { passwordStrength } from '@/lib/password-reset';
-import { PASSWORD_MIN } from '@/lib/validation';
+import { passwordStrength } from '@/components/auth/lib/password-reset';
+import { PASSWORD_MIN } from '@/components/auth/lib/validation';
 
 /**
  * Strength meter + the rules the server actually enforces.

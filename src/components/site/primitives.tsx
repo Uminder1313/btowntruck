@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/components/auth/lib/utils';
 
 /** Page gutter container — 1360px max width, matching the prototype. */
 export const Shell: React.FC<{ className?: string; children: React.ReactNode }> = ({

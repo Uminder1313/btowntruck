@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spinner } from '@/components/dashboard/ui';
-import { useAuth, homeFor } from '@/lib/auth';
+import { useAuth, homeFor } from '@/components/auth/lib/auth';
 
 /**
  * /admin (bare) — a doorway, not a page.

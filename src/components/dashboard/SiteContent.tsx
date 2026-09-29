@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Image as ImageIcon, Loader2, Save, Trash2, Upload } from 'lucide-react';
-import { getSessionToken } from '@/lib/session-store';
-import { useAuth, isStaff } from '@/lib/auth';
+import { getSessionToken } from '@/components/auth/lib/session-store';
+import { useAuth, isStaff } from '@/components/auth/lib/auth';
 import { Panel, PageTitle, Spinner, EmptyState, ReadOnlyNote } from '@/components/dashboard/ui';
-import type { SiteContentRow } from '@/lib/site-copy';
+import type { SiteContentRow } from '@/components/auth/lib/site-copy';
 
-import { API_BASE } from '@/lib/api';
+import { API_BASE } from '@/components/auth/lib/api';
 
 const getAuthHeaders = () => {
   const token = getSessionToken();

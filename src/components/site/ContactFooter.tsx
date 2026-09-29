@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_BASE } from '@/lib/api';
+import { API_BASE } from '@/components/auth/lib/api';
 import { toast } from 'sonner';
 import { CheckCircle2, Loader2, Phone } from 'lucide-react';
 import {
@@ -18,8 +18,8 @@ import {
   NAV,
   BUSINESS_NAME,
 } from '@/data/site-content';
-import { serviceRequestSchema, fieldErrors } from '@/lib/validation';
-import { useCopy } from '@/lib/site-copy';
+import { serviceRequestSchema, fieldErrors } from '@/components/auth/lib/validation';
+import { useCopy } from '@/components/auth/lib/site-copy';
 
 /* ---------------------------------------------------------------- 10 */
 export const Contact: React.FC = () => {

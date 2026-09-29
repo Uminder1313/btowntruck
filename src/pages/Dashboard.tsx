@@ -14,7 +14,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { useAuth, isAdmin, isStaff } from '@/lib/auth';
+import { useAuth, isAdmin, isStaff } from '@/components/auth/lib/auth';
 import { Overview, Requests } from '@/components/dashboard/Requests';
 import { ReviewsAdmin, NotesAdmin, FaqsAdmin } from '@/components/dashboard/Content';
 import { UsersAdmin, AuditLog } from '@/components/dashboard/Admin';

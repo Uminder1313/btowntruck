@@ -4,10 +4,10 @@ import { toast } from 'sonner';
 import { ArrowLeft, Eye, EyeOff, Loader2, ShieldCheck, UserPlus } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import { Field } from '@/components/dashboard/ui';
-import { useAuth, homeFor } from '@/lib/auth';
-import { callFn } from '@/lib/public-data';
-import { registerSchema, fieldErrors, PASSWORD_MIN } from '@/lib/validation';
-import { API_BASE } from '@/lib/api';
+import { useAuth, homeFor } from '@/components/auth/lib/auth';
+import { callFn } from '@/components/auth/lib/public-data';
+import { registerSchema, fieldErrors, PASSWORD_MIN } from '@/components/auth/lib/validation';
+import { API_BASE } from '@/components/auth/lib/api';
 
 /**
  * /admin/register — administrator registration. Not linked from anywhere public.

@@ -4,11 +4,11 @@ import { toast } from 'sonner';
 import { ArrowLeft, Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import { Field } from '@/components/dashboard/ui';
-import { useAuth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { API_BASE } from '@/lib/api';
-import { callFn } from '@/lib/public-data';
-import { registerSchema, fieldErrors, PASSWORD_MIN } from '@/lib/validation';
+import { useAuth } from '@/components/auth/lib/auth';
+import { db } from '@/components/auth/lib/db';
+import { API_BASE } from '@/components/auth/lib/api';
+import { callFn } from '@/components/auth/lib/public-data';
+import { registerSchema, fieldErrors, PASSWORD_MIN } from '@/components/auth/lib/validation';
 
 /**
  * /register — public customer registration.

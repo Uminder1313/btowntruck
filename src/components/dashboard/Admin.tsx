@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { API_BASE } from '@/lib/api';
+import { API_BASE } from '@/components/auth/lib/api';
 import { toast } from 'sonner';
-import { Loader2, ShieldAlert, UserPlus } from 'lucide-react';
-import { useAuth, isAdmin, type Profile } from '@/lib/auth';
-import { getSessionToken } from '@/lib/session-store';
-import { newUserSchema, fieldErrors, ROLES, PASSWORD_MIN, type Role } from '@/lib/validation';
+import { Loader2, ShieldAlert, UserPlus, Trash2, X } from 'lucide-react';
+import { useAuth, isAdmin, type Profile } from '@/components/auth/lib/auth';
+import { getSessionToken } from '@/components/auth/lib/session-store';
+import { newUserSchema, fieldErrors, ROLES, PASSWORD_MIN, type Role } from '@/components/auth/lib/validation';
 import {
   Panel,
   PageTitle,
@@ -39,6 +39,8 @@ export const UsersAdmin: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [savingId, setSavingId] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<Profile | null>(null);
+const [deleting, setDeleting] = useState(false);
 
  const load = async () => {
   const token = getSessionToken();
@@ -180,6 +182,60 @@ const status = response.status;
     toast.error('Unable to update account status.');
   }
 };
+
+const deleteUser = async () => {
+  if (!deleteTarget || deleting) return;
+
+  if (deleteTarget.id === profile?.id) {
+    toast.error('You cannot delete your own account.');
+    return;
+  }
+
+  setDeleting(true);
+
+  try {
+    const token = getSessionToken();
+
+    const response = await fetch(
+      `${API_BASE}/api/admin/users/${deleteTarget.id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      toast.error(data?.error ?? 'Could not delete this user.');
+      return;
+    }
+
+    setRows((prev) =>
+      (prev ?? []).filter((user) => user.id !== deleteTarget.id)
+    );
+
+    setRoleSets((prev) => {
+      const next = { ...prev };
+      delete next[deleteTarget.id];
+      return next;
+    });
+
+    toast.success(
+      `${deleteTarget.full_name || deleteTarget.email} was deleted.`
+    );
+
+    setDeleteTarget(null);
+  } catch (error) {
+    console.error('User deletion error:', error);
+    toast.error('Unable to connect to the backend.');
+  } finally {
+    setDeleting(false);
+  }
+};
+
 const create = async (e: React.FormEvent) => {
   e.preventDefault();
 
@@ -287,7 +343,7 @@ const create = async (e: React.FormEvent) => {
               <table className="w-full min-w-[1000px] border-collapse text-left">
                 <thead>
                   <tr className="border-b border-white/[0.08]">
-                    {['Person', 'Role set', 'Roles', 'Active', 'Reset link'].map((h) => (
+                    {['Person', 'Role set', 'Roles', 'Active', 'Actions'].map((h) => (
                       <th key={h} className="mono px-5 py-3.5 text-[9.5px] font-medium text-graphite">
                         {h}
                       </th>
@@ -350,8 +406,22 @@ const create = async (e: React.FormEvent) => {
                           />
                         </td>
                         <td className="px-5 py-4">
-                          <GenerateResetLink user={r} />
-                        </td>
+  <div className="flex flex-wrap items-center gap-2">
+    <GenerateResetLink user={r} />
+
+    {r.id !== profile?.id && (
+      <button
+        type="button"
+        onClick={() => setDeleteTarget(r)}
+        className="inline-flex items-center gap-1.5 rounded-md border border-red-500/25 px-3 py-2 text-[12px] text-red-300 transition-colors hover:border-red-500/50 hover:bg-red-500/10"
+        aria-label={`Delete ${r.email}`}
+      >
+        <Trash2 size={13} />
+        Delete
+      </button>
+    )}
+  </div>
+</td>
                       </tr>
                     );
                   })}
@@ -414,9 +484,72 @@ const create = async (e: React.FormEvent) => {
               {busy ? <Loader2 size={15} className="animate-spin" /> : <UserPlus size={15} />}
               Create user
             </button>
-          </form>
+                    </form>
         </Panel>
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-ink/80 px-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirm user deletion"
+        >
+          <div className="glass glass-solid w-full max-w-[460px] p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="mono text-red-300">// Delete account</p>
+
+                <h2 className="mt-3 font-display text-[21px] font-semibold text-chalk">
+                  Delete {deleteTarget.full_name || deleteTarget.email}?
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/12 text-chalk transition-colors hover:border-amber/50 hover:text-amber disabled:opacity-50"
+                aria-label="Close"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p className="mt-4 text-[14px] leading-relaxed text-graphite">
+              This will permanently delete this user account and its
+              associated account records. This action cannot be undone.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={deleting}
+                className="btn-ghost"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={deleteUser}
+                disabled={deleting}
+                className="inline-flex items-center gap-2 rounded-md bg-red-600 px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {deleting ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  <Trash2 size={15} />
+                )}
+
+                {deleting ? 'Deleting...' : 'Delete user'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

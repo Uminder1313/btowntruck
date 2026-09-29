@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { db } from '@/lib/db';
-import { getSessionToken } from '@/lib/session-store';
-import { API_BASE } from '@/lib/api';
+import { db } from '@/components/auth/lib/db';
+import { getSessionToken } from '@/components/auth/lib/session-store';
+import { API_BASE } from '@/components/auth/lib/api';
 import {
   FALLBACK_FAQS,
   FALLBACK_NOTES,

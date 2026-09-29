@@ -1,7 +1,7 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { Role, Status, Urgency } from '@/lib/validation';
+import { cn } from '@/components/auth/lib/utils';
+import type { Role, Status, Urgency } from '@/components/auth/lib/validation';
 
 /* ---------------------------------------------------------------------------
    Small presentational building blocks shared by every dashboard screen.

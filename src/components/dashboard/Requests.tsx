@@ -4,13 +4,13 @@ import { Filter, RefreshCw, X } from 'lucide-react';
 import {
   useAuth,
   isStaff,
-} from '@/lib/auth';
+} from '@/components/auth/lib/auth';
 import {
   STATUSES,
   URGENCIES,
   type Status,
   type Urgency,
-} from '@/lib/validation';
+} from '@/components/auth/lib/validation';
 import {
   Panel,
   PageTitle,
@@ -22,7 +22,7 @@ import {
   URGENCY_LABEL,
   ReadOnlyNote,
 } from '@/components/dashboard/ui';
-import type { Profile } from '@/lib/auth';
+import type { Profile } from '@/components/auth/lib/auth';
 
 export type ServiceRequest = {
   id: number;
@@ -40,7 +40,7 @@ export type ServiceRequest = {
   updated_at: string;
 };
 
-import { API_BASE } from '@/lib/api';
+import { API_BASE } from '@/components/auth/lib/api';
 
 const getHeaders = () => {
   const token = localStorage.getItem('btown_session_token');

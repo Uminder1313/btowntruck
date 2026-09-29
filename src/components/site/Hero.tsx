@@ -4,7 +4,7 @@ import { Shell, Orb, LiveDot, Reveal } from '@/components/site/primitives';
 import TruckIllustration from '@/components/site/TruckIllustration';
 import ServiceIcon from '@/components/site/ServiceIcons';
 import { content } from '@/data/site-content';
-import { useCopy } from '@/lib/site-copy';
+import { useCopy } from '@/components/auth/lib/site-copy';
 
 
 

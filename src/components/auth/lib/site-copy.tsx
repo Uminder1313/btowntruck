@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { db } from '@/lib/db';
+import { db } from '@/components/auth/lib/db';
 import { PHONE, PHONE_HREF } from '@/data/site-content';
-import { API_BASE } from '@/lib/api';
+import { API_BASE } from '@/components/auth/lib/api';
 /* ---------------------------------------------------------------------------
    Editable public-site copy.
 

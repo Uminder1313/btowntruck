@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogIn, Menu, Phone, X } from 'lucide-react';
+import { LogIn, Menu, Phone, X, LogOut, User } from 'lucide-react';
+import { useAuth } from '@/components/auth/lib/auth';
 import { Shell } from '@/components/site/primitives';
 import { NAV, PHONE, PHONE_HREF, content, BUSINESS_NAME } from '@/data/site-content';
 
@@ -25,6 +26,8 @@ const Wordmark: React.FC = () => (
 );
 
 const Header: React.FC = () => {
+  const { profile, loading, signOut } = useAuth();
+
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -69,20 +72,55 @@ const Header: React.FC = () => {
           </nav>
 
           <div className="flex items-center gap-3 lg:ml-6">
-            <Link
-              to="/login"
-              className="btn-amber hidden whitespace-nowrap !px-5 !py-2.5 text-[14px] sm:inline-flex"
-              onClick={() => {
-                try {
-                  window.supercool?.track?.('cta_click', { cta: 'header-login' });
-                } catch {
-                  /* analytics must never break the page */
-                }
-              }}
-            >
-              <LogIn size={15} />
-              Login / Register
-            </Link>
+            {!loading && profile ? (
+  <div className="hidden items-center gap-3 sm:flex">
+    <Link
+      to={profile.role === 'admin' || profile.role === 'dispatcher' || profile.role === 'viewer'
+        ? '/dashboard'
+        : '/account'}
+      className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 transition-colors hover:border-amber/40"
+    >
+      <User size={15} className="text-amber" />
+
+      <span className="flex flex-col text-left leading-tight">
+        <span className="text-[13px] font-semibold text-chalk">
+          {profile.full_name || 'Account'}
+        </span>
+
+        <span className="text-[11px] text-chalk/50">
+          {profile.email}
+        </span>
+      </span>
+    </Link>
+
+    <button
+      type="button"
+      onClick={() => {
+        void signOut();
+      }}
+      className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-chalk/70 transition-colors hover:border-red-400/40 hover:text-red-300"
+      aria-label="Sign out"
+      title="Sign out"
+    >
+      <LogOut size={16} />
+    </button>
+  </div>
+) : !loading ? (
+  <Link
+    to="/login"
+    className="btn-amber hidden whitespace-nowrap !px-5 !py-2.5 text-[14px] sm:inline-flex"
+    onClick={() => {
+      try {
+        window.supercool?.track?.('cta_click', { cta: 'header-login' });
+      } catch {
+        /* analytics must never break the page */
+      }
+    }}
+  >
+    <LogIn size={15} />
+    Login / Register
+  </Link>
+) : null}
             <button
               type="button"
               onClick={() => setOpen(true)}

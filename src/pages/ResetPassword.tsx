@@ -5,9 +5,9 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import { Field } from '@/components/dashboard/ui';
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
-import { db } from '@/lib/db';
-import { passwordSchema } from '@/lib/validation';
-import { API_BASE } from '@/lib/api';
+import { db } from '@/components/auth/lib/db';
+import { passwordSchema } from '@/components/auth/lib/validation';
+import { API_BASE } from '@/components/auth/lib/api';
 
 /**
  * /reset-password — where BOTH kinds of reset arrive.

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Check, Clock, Copy, KeyRound, Loader2, X } from 'lucide-react';
-import { expiryLabel } from '@/lib/password-reset';
-import type { Profile } from '@/lib/auth';
-import { API_BASE } from '@/lib/api';
+import { expiryLabel } from '@/components/auth/lib/password-reset';
+import type { Profile } from '@/components/auth/lib/auth';
+import { API_BASE } from '@/components/auth/lib/api';
 /**
  * Dashboard → Users → "Generate reset link".
  *

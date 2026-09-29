@@ -8,10 +8,10 @@ import React, {
   useState,
 } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { db } from '@/lib/db';
-import { callFn } from '@/lib/public-data';
-import { clearSessionToken, getSessionToken, setSessionToken } from '@/lib/session-store';
-import type { Role } from '@/lib/validation';
+import { db } from '@/components/auth/lib/db';
+import { callFn } from '@/components/auth/lib/public-data';
+import { clearSessionToken, getSessionToken, setSessionToken } from '@/components/auth/lib/session-store';
+import type { Role } from '@/components/auth/lib/validation';
 
 /* ---------------------------------------------------------------------------
    Auth context — the site's OWN session.
@@ -333,6 +333,3 @@ const loadProfile = useCallback(async (user: AuthUser | null) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-
-

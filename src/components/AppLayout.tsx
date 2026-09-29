@@ -12,7 +12,7 @@ import {
 import { Reviews, RoadNotes, FaqSection } from '@/components/site/ReviewsNotesFaq';
 import { Contact, Footer } from '@/components/site/ContactFooter';
 import { IconGradients } from '@/components/site/ServiceIcons';
-import { usePublicContent } from '@/lib/public-data';
+import { usePublicContent } from '@/components/auth/lib/public-data';
 
 /**
  * The public marketing site — a faithful reproduction of the approved

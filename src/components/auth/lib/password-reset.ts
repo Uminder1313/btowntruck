@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { emailSchema, passwordSchema, PASSWORD_MIN } from '@/lib/validation';
+import { emailSchema, passwordSchema, PASSWORD_MIN } from '@/components/auth/lib/validation';
 
 /* ---------------------------------------------------------------------------
    Password reset — shared zod schemas and the strength meter.

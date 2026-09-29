@@ -29,3 +29,10 @@ dist-ssr
 backend/.env
 
 testadmin_hash.txt
+
+# Local database backups
+neon_backup.dump
+neon_backup.sql
+# Local database backups
+neon_backup.dump
+neon_backup.sql

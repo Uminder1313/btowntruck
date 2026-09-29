@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { API_BASE } from '@/lib/api';
+import { API_BASE } from '@/components/auth/lib/api';
 import { toast } from 'sonner';
 
 import { Loader2, Plus, Star, Trash2 } from 'lucide-react';
 
-import { useAuth, isStaff, isAdmin } from '@/lib/auth';
+import { useAuth, isStaff, isAdmin } from '@/components/auth/lib/auth';
 
 import {
 
@@ -24,7 +24,7 @@ import {
 
 } from '@/components/dashboard/ui';
 
-import { reviewSchema, roadNoteSchema, faqSchema, fieldErrors } from '@/lib/validation';
+import { reviewSchema, roadNoteSchema, faqSchema, fieldErrors } from '@/components/auth/lib/validation';
 
 
 

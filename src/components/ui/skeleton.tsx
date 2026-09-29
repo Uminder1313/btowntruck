@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { cn } from "@/components/auth/lib/utils"
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   animated?: boolean

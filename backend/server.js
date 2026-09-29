@@ -575,6 +575,132 @@ app.get("/api/test-admin", async (req, res) => {
   }
 });
 
+// Delete a user — Super Admin only
+app.delete("/api/admin/users/:userId", async (req, res) => {
+  try {
+    // 1. Read JWT
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        error: "Authentication required",
+      });
+    }
+
+    const token = authHeader.substring(7);
+
+    // 2. Verify JWT
+    let decoded;
+
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return res.status(401).json({
+        error: "Invalid or expired session",
+      });
+    }
+
+    const actorId = decoded.user_id;
+
+    if (!actorId) {
+      return res.status(401).json({
+        error: "Invalid session",
+      });
+    }
+
+    // 3. Only the Super Admin can delete users
+    const superAdmin = await isSuperAdmin(actorId);
+
+    if (!superAdmin) {
+      return res.status(403).json({
+        error: "Only the super administrator can delete users",
+      });
+    }
+
+    const { userId } = req.params;
+
+    // 4. Never allow the Super Admin to delete themselves
+    if (userId === actorId) {
+      return res.status(403).json({
+        error: "You cannot delete your own account",
+      });
+    }
+
+    // 5. Make sure target user exists
+    const targetResult = await pool.query(
+      `
+      SELECT id, email, full_name
+      FROM "prj_-jPU4p7xAmeh".profiles
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [userId]
+    );
+
+    if (targetResult.rowCount === 0) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+    const targetUser = targetResult.rows[0];
+
+    // 6. Extra protection:
+    // Never allow deletion of another Super Admin.
+    const targetSuperAdmin = await isSuperAdmin(userId);
+
+    if (targetSuperAdmin) {
+      return res.status(403).json({
+        error: "The super administrator account cannot be deleted",
+      });
+    }
+
+    // 7. Delete password reset tokens explicitly.
+    // There is no FK cascade for this table.
+    await pool.query(
+      `
+      DELETE FROM "prj_-jPU4p7xAmeh".password_reset_tokens
+      WHERE user_id = $1
+      `,
+      [userId]
+    );
+
+    // 8. Delete the profile.
+    // auth_sessions and user_roles cascade automatically.
+    // service_requests.assigned_to becomes NULL.
+    const deleteResult = await pool.query(
+      `
+      DELETE FROM "prj_-jPU4p7xAmeh".profiles
+      WHERE id = $1
+      RETURNING id, email, full_name
+      `,
+      [userId]
+    );
+
+    if (deleteResult.rowCount === 0) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+    console.log(
+      `User deleted by Super Admin: ${targetUser.email} (${targetUser.id})`
+    );
+
+    return res.status(200).json({
+      success: true,
+      user: deleteResult.rows[0],
+    });
+
+  } catch (error) {
+    console.error("User deletion error:", error);
+
+    return res.status(500).json({
+      error: "Failed to delete user",
+    });
+  }
+});
+
 app.get("/api/admin/users", async (req, res) => {
   try {
     // 1. Read the JWT
@@ -1564,15 +1690,52 @@ app.post("/api/auth/change-password", async (req, res) => {
 
 app.post("/api/public/submit-request", async (req, res) => {
   try {
+          let authenticatedUser = null;
+
+      const authHeader = req.headers.authorization;
+
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = authHeader.substring(7);
+
+        try {
+          authenticatedUser = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+          );
+        } catch {
+          // Public requests are still allowed without authentication.
+          authenticatedUser = null;
+        }
+      }
     const {
-      name,
-      phone,
-      truck_details,
-      location,
-      issue_description,
-      urgency,
-      honeypot,
-    } = req.body;
+  name,
+  phone,
+  truck_details,
+  location,
+  issue_description,
+  urgency,
+  honeypot,
+} = req.body;
+
+// Use the logged-in account email when available.
+// Public visitors can still submit without an account.
+let requestEmail = null;
+
+if (authenticatedUser?.user_id) {
+  const profileResult = await pool.query(
+    `
+    SELECT email
+    FROM "prj_-jPU4p7xAmeh".profiles
+    WHERE id = $1
+    LIMIT 1
+    `,
+    [authenticatedUser.user_id]
+  );
+
+  if (profileResult.rowCount > 0) {
+    requestEmail = profileResult.rows[0].email;
+  }
+}
 
     // Silently accept honeypot submissions to discourage bots
     if (honeypot) {
@@ -1591,27 +1754,29 @@ app.post("/api/public/submit-request", async (req, res) => {
     const result = await pool.query(
       `
       INSERT INTO "prj_-jPU4p7xAmeh".service_requests
-        (
-          name,
-          phone,
-          location,
-          truck_details,
-          issue_description,
-          urgency,
-          status
-        )
-      VALUES
-        ($1, $2, $3, $4, $5, $6, 'new')
+  (
+    name,
+    phone,
+    email,
+    location,
+    truck_details,
+    issue_description,
+    urgency,
+    status
+  )
+VALUES
+  ($1, $2, $3, $4, $5, $6, $7, 'new')
       RETURNING id, created_at
       `,
       [
-        name,
-        phone,
-        location,
-        truck_details || null,
-        issue_description,
-        urgency || "normal",
-      ]
+  name,
+  phone,
+  requestEmail,
+  location,
+  truck_details || null,
+  issue_description,
+  urgency || "normal",
+]
     );
 
     return res.status(200).json({
@@ -1624,6 +1789,80 @@ app.post("/api/public/submit-request", async (req, res) => {
 
     return res.status(500).json({
       error: "Could not submit your request",
+    });
+  }
+});
+
+// ============================================================
+// CUSTOMER - MY SERVICE REQUESTS
+// ============================================================
+
+app.get("/api/my-requests", async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || "";
+
+    if (!authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        error: "Authentication required.",
+      });
+    }
+
+    const token = authHeader.slice(7);
+
+    let decoded;
+
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch {
+      return res.status(401).json({
+        error: "Invalid or expired session.",
+      });
+    }
+
+    const profileResult = await pool.query(
+      `
+      SELECT email
+      FROM "prj_-jPU4p7xAmeh".profiles
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [decoded.user_id]
+    );
+
+    if (profileResult.rowCount === 0) {
+      return res.status(404).json({
+        error: "User profile not found.",
+      });
+    }
+
+    const email = profileResult.rows[0].email;
+
+    const result = await pool.query(
+      `
+      SELECT
+        id,
+        location,
+        truck_details,
+        issue_description,
+        urgency,
+        status,
+        created_at
+      FROM "prj_-jPU4p7xAmeh".service_requests
+      WHERE email = $1
+      ORDER BY created_at DESC
+      LIMIT 50
+      `,
+      [email]
+    );
+
+    return res.status(200).json({
+      requests: result.rows,
+    });
+  } catch (error) {
+    console.error("Load my service requests error:", error);
+
+    return res.status(500).json({
+      error: "Could not load your service requests.",
     });
   }
 });

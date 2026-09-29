@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Clock, LogOut, RefreshCw } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import { Spinner } from '@/components/dashboard/ui';
-import { useAuth, homeFor } from '@/lib/auth';
+import { useAuth, homeFor } from '@/components/auth/lib/auth';
 
 /**
  * /admin/pending — the waiting room for a staff account that registered at

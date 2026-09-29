@@ -3,7 +3,7 @@ import { Check, Phone } from 'lucide-react';
 import { Section, Shell, Orb, Eyebrow, Reveal } from '@/components/site/primitives';
 import ServiceIcon from '@/components/site/ServiceIcons';
 import { content, PHONE_HREF } from '@/data/site-content';
-import { useCopy } from '@/lib/site-copy';
+import { useCopy } from '@/components/auth/lib/site-copy';
 
 /* ---------------------------------------------------------------- 02 */
 export const Services: React.FC = () => {

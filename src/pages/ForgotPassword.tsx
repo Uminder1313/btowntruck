@@ -4,10 +4,10 @@ import { toast } from 'sonner';
 import { ArrowLeft, CheckCircle2, Loader2, Mail } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import { Field } from '@/components/dashboard/ui';
-import { callFn } from '@/lib/public-data';
-import { forgotPasswordSchema } from '@/lib/password-reset';
-import { fieldErrors } from '@/lib/validation';
-import { API_BASE } from '@/lib/api';
+import { callFn } from '@/components/auth/lib/public-data';
+import { forgotPasswordSchema } from '@/components/auth/lib/password-reset';
+import { fieldErrors } from '@/components/auth/lib/validation';
+import { API_BASE } from '@/components/auth/lib/api';
 
 
 /**

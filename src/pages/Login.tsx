@@ -4,8 +4,8 @@ import { toast } from 'sonner';
 import { ArrowLeft, Eye, EyeOff, Loader2, LogIn } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import { Field } from '@/components/dashboard/ui';
-import { useAuth, homeFor, type Profile } from '@/lib/auth';
-import { loginSchema, fieldErrors } from '@/lib/validation';
+import { useAuth, homeFor, type Profile } from '@/components/auth/lib/auth';
+import { loginSchema, fieldErrors } from '@/components/auth/lib/validation';
 
 /**
  * /login — customer sign-in, with "forgot password" by secure email link.

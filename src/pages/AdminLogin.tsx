@@ -4,9 +4,9 @@ import { toast } from 'sonner';
 import { ArrowLeft, Eye, EyeOff, Loader2, LogIn, ShieldCheck } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import { Field } from '@/components/dashboard/ui';
-import { useAuth, homeFor, type Profile } from '@/lib/auth';
-import { loginSchema, fieldErrors } from '@/lib/validation';
-import type { Role } from '@/lib/validation';
+import { useAuth, homeFor, type Profile } from '@/components/auth/lib/auth';
+import { loginSchema, fieldErrors } from '@/components/auth/lib/validation';
+import type { Role } from '@/components/auth/lib/validation';
 
 /** The roles that may use the administrator area. */
 const STAFF_ROLES: Role[] = ['admin', 'dispatcher', 'viewer', 'pending_staff'];
