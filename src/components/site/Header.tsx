@@ -28,8 +28,9 @@ const Wordmark: React.FC = () => (
 const Header: React.FC = () => {
   const { profile, loading, signOut } = useAuth();
 
-  const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+const [scrolled, setScrolled] = useState(false);
+const [open, setOpen] = useState(false);
+const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -72,39 +73,77 @@ const Header: React.FC = () => {
           </nav>
 
           <div className="flex items-center gap-3 lg:ml-6">
-            {!loading && profile ? (
-  <div className="hidden items-center gap-3 sm:flex">
-    <Link
-      to={profile.role === 'admin' || profile.role === 'dispatcher' || profile.role === 'viewer'
-        ? '/dashboard'
-        : '/account'}
-      className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 transition-colors hover:border-amber/40"
-    >
-      <User size={15} className="text-amber" />
+{!loading && profile ? (
+  <div
+  className="relative hidden items-center gap-3 sm:flex"
+  onMouseEnter={() => setUserMenuOpen(true)}
+  onMouseLeave={() => setUserMenuOpen(false)}
+>
+  <button
+    type="button"
+    onClick={() => setUserMenuOpen((v) => !v)}
+    className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 transition-colors hover:border-amber/40"
+    aria-expanded={userMenuOpen}
+    aria-haspopup="menu"
+  >
+    <User size={15} className="text-amber" />
 
-      <span className="flex flex-col text-left leading-tight">
-        <span className="text-[13px] font-semibold text-chalk">
-          {profile.full_name || 'Account'}
-        </span>
-
-        <span className="text-[11px] text-chalk/50">
-          {profile.email}
-        </span>
+    <span className="flex flex-col text-left leading-tight">
+      <span className="text-[13px] font-semibold text-chalk">
+        {profile.full_name || 'Account'}
       </span>
-    </Link>
 
-    <button
-      type="button"
-      onClick={() => {
-        void signOut();
-      }}
-      className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-chalk/70 transition-colors hover:border-red-400/40 hover:text-red-300"
-      aria-label="Sign out"
-      title="Sign out"
+      <span className="text-[11px] text-chalk/50">
+        {profile.email}
+      </span>
+    </span>
+  </button>
+
+  {userMenuOpen && (
+    <div
+      className="absolute right-0 top-full z-[70] mt-2 w-[220px] rounded-2xl border border-white/10 bg-[#11151b] p-2 shadow-2xl"
+      role="menu"
     >
-      <LogOut size={16} />
-    </button>
-  </div>
+      <Link
+        to={
+          profile.role === 'admin' ||
+          profile.role === 'dispatcher' ||
+          profile.role === 'viewer'
+            ? '/dashboard'
+            : '/account'
+        }
+        onClick={() => setUserMenuOpen(false)}
+        className="block rounded-xl px-4 py-3 text-[13px] text-chalk transition-colors hover:bg-white/[0.06] hover:text-amber"
+        role="menuitem"
+      >
+        <span className="block font-semibold">
+          {profile.role === 'admin' ||
+          profile.role === 'dispatcher' ||
+          profile.role === 'viewer'
+            ? 'Dashboard'
+            : 'My Account'}
+        </span>
+
+        <span className="mt-1 block text-[11px] text-chalk/50">
+          Manage your account
+        </span>
+      </Link>
+
+      <button
+        type="button"
+        onClick={() => {
+          setUserMenuOpen(false);
+          void signOut();
+        }}
+        className="mt-1 flex w-full items-center gap-2 rounded-xl px-4 py-3 text-left text-[13px] text-chalk/75 transition-colors hover:bg-red-400/10 hover:text-red-300"
+        role="menuitem"
+      >
+        <LogOut size={14} />
+        Sign out
+      </button>
+    </div>
+  )}
+</div>
 ) : !loading ? (
   <Link
     to="/login"
