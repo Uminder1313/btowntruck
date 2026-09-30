@@ -4,6 +4,7 @@ import { Check, Clock, Copy, KeyRound, Loader2, X } from 'lucide-react';
 import { expiryLabel } from '@/components/auth/lib/password-reset';
 import type { Profile } from '@/components/auth/lib/auth';
 import { API_BASE } from '@/components/auth/lib/api';
+import { getSessionToken } from '@/components/auth/lib/session-store';
 /**
  * Dashboard → Users → "Generate reset link".
  *
@@ -36,7 +37,7 @@ export const GenerateResetLink: React.FC<{ user: Pick<Profile, 'id' | 'email' | 
     if (busy) return;
     setBusy(true);
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
 const response = await fetch(
   `${API_BASE}/api/auth/reset-link`,
@@ -165,3 +166,4 @@ const status = response.status;
 };
 
 export default GenerateResetLink;
+

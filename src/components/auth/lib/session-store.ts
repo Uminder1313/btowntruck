@@ -16,7 +16,7 @@ const SESSION_TOKEN_KEY = 'btown_session_token';
 
 export function getSessionToken(): string {
   try {
-    return window.localStorage.getItem(SESSION_TOKEN_KEY) ?? '';
+    return window.sessionStorage.getItem(SESSION_TOKEN_KEY) ?? '';
   } catch {
     return '';
   }
@@ -24,8 +24,8 @@ export function getSessionToken(): string {
 
 export function setSessionToken(token: string): void {
   try {
-    if (token) window.localStorage.setItem(SESSION_TOKEN_KEY, token);
-    else window.localStorage.removeItem(SESSION_TOKEN_KEY);
+    if (token) window.sessionStorage.setItem(SESSION_TOKEN_KEY, token);
+    else window.sessionStorage.removeItem(SESSION_TOKEN_KEY);
   } catch {
     /* private mode / storage disabled — the cookie remains the fallback */
   }

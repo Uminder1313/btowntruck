@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Loader2, Plus, Star, Trash2 } from 'lucide-react';
 
 import { useAuth, isStaff, isAdmin } from '@/components/auth/lib/auth';
+import { getSessionToken } from '@/components/auth/lib/session-store';
 
 import {
 
@@ -115,7 +116,7 @@ export const ReviewsAdmin: React.FC = () => {
 
   const load = async () => {
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       const response = await fetch(
         `${API_BASE}/api/admin/content/reviews`,
@@ -155,7 +156,7 @@ export const ReviewsAdmin: React.FC = () => {
 
   const togglePublished = async (row: ReviewRow) => {
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       const response = await fetch(
         `${API_BASE}/api/admin/content/reviews/${row.id}/publish`,
@@ -219,7 +220,7 @@ export const ReviewsAdmin: React.FC = () => {
     }
 
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       const response = await fetch(
         `${API_BASE}/api/admin/content/reviews/${row.id}`,
@@ -286,7 +287,7 @@ export const ReviewsAdmin: React.FC = () => {
     setBusy(true);
 
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       const response = await fetch(
         `${API_BASE}/api/admin/content/reviews`,
@@ -615,7 +616,7 @@ export const NotesAdmin: React.FC = () => {
 
   const load = async () => {
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       const response = await fetch(
         `${API_BASE}/api/admin/content/road-notes`,
@@ -657,7 +658,7 @@ export const NotesAdmin: React.FC = () => {
     const next = !row.is_published;
 
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       const response = await fetch(
         `${API_BASE}/api/admin/content/road-notes/${row.id}/publish`,
@@ -726,7 +727,7 @@ export const NotesAdmin: React.FC = () => {
     }
 
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       const response = await fetch(
         `${API_BASE}/api/admin/content/road-notes/${row.id}`,
@@ -805,9 +806,7 @@ export const NotesAdmin: React.FC = () => {
     setBusy(true);
 
     try {
-      const sessionToken = localStorage.getItem(
-        'btown_session_token'
-      );
+      const sessionToken = getSessionToken();
 
       const response = await fetch(
         `${API_BASE}/api/admin/content/road-notes`,
@@ -1170,9 +1169,7 @@ export const FaqsAdmin: React.FC = () => {
   });
 
   const getHeaders = () => {
-    const sessionToken = localStorage.getItem(
-      'btown_session_token'
-    );
+    const sessionToken = getSessionToken();
 
     return {
       ...(sessionToken
@@ -1690,3 +1687,4 @@ export const FaqsAdmin: React.FC = () => {
     </div>
   );
 };
+

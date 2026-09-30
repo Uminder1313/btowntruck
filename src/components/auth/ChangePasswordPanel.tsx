@@ -5,6 +5,7 @@ import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 import { changePasswordSchema } from '@/components/auth/lib/password-reset';
 import { fieldErrors } from '@/components/auth/lib/validation';
 import { API_BASE } from '@/components/auth/lib/api';
+import { clearSessionToken, getSessionToken } from '@/components/auth/lib/session-store';
 
 export const ChangePasswordPanel: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -58,7 +59,7 @@ export const ChangePasswordPanel: React.FC = () => {
     setBusy(true);
 
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       if (!sessionToken) {
         toast.error('Your session has expired. Please sign in again.');
@@ -101,7 +102,7 @@ export const ChangePasswordPanel: React.FC = () => {
        * Remove the current JWT and force a fresh login so the
        * user must authenticate again with the new password.
        */
-      localStorage.removeItem('btown_session_token');
+      clearSessionToken();
 
       toast.success(
         'Password updated. Please sign in again with your new password.',

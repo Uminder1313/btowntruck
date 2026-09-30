@@ -5,6 +5,7 @@ import { LogOut, Wrench } from 'lucide-react';
 import { db } from '@/components/auth/lib/db';
 import { useAuth, canUseCustomerArea } from '@/components/auth/lib/auth';
 import { API_BASE } from '@/components/auth/lib/api';
+import { getSessionToken } from '@/components/auth/lib/session-store';
 import {
   Panel,
   PageTitle,
@@ -87,7 +88,7 @@ useEffect(() => {
 
   (async () => {
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       if (!sessionToken) {
         toast.error('Your session has expired. Please sign in again.');
@@ -303,7 +304,7 @@ useEffect(() => {
     setRequestSending(true);
 
     try {
-      const sessionToken = localStorage.getItem('btown_session_token');
+      const sessionToken = getSessionToken();
 
       const response = await fetch(
         `${API_BASE}/api/public/submit-request`,
@@ -503,3 +504,4 @@ useEffect(() => {
 };
 
 export default Account;
+

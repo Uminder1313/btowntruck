@@ -43,7 +43,7 @@ export type ServiceRequest = {
 import { API_BASE } from '@/components/auth/lib/api';
 
 const getHeaders = () => {
-  const token = localStorage.getItem('btown_session_token');
+  const token = getSessionToken();
 
   return {
     'Content-Type': 'application/json',
@@ -664,3 +664,4 @@ export const Requests: React.FC = () => {
     </div>
   );
 };
+
