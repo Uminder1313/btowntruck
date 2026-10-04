@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Filter, RefreshCw, X } from 'lucide-react';
+import { getSessionToken } from '@/components/auth/lib/session-store';
 import {
   useAuth,
   isStaff,

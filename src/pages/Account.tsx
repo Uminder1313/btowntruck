@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { LogOut, Wrench } from 'lucide-react';
@@ -16,6 +16,7 @@ import {
   UrgencyPill,
 } from '@/components/dashboard/ui';
 import { ChangePasswordPanel } from '@/components/auth/ChangePasswordPanel';
+import Header from '@/components/site/Header';
 import { BUSINESS_NAME } from '@/data/site-content';
 import type { Status, Urgency } from '@/components/auth/lib/validation';
 
@@ -30,7 +31,7 @@ type MyRequest = {
 };
 
 /**
- * /account — the customer area. Protected.
+ * /account â€” the customer area. Protected.
  *
  * Signed-out visitors go to /login. A customer, an administrator and a
  * dispatcher may all open this page; their own rows are the only ones it can
@@ -38,7 +39,7 @@ type MyRequest = {
  *
  * The list below is filtered by the query AND by row-level security: the
  * SELECT policy on service_requests only matches rows whose user_id is the
- * caller's own auth id or whose email is their own address — so the database,
+ * caller's own auth id or whose email is their own address â€” so the database,
  * not this component, is what keeps other people's requests out, for every
  * role including staff.
  */
@@ -138,38 +139,14 @@ useEffect(() => {
   if (loading || !session || !profile) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-ink px-6">
-        <Spinner label="Checking your session…" />
+        <Spinner label="Checking your sessionâ€¦" />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-ink">
-      <div className="sticky top-0 z-40 border-b border-white/[0.07] bg-ink/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1100px] items-center justify-between gap-4 px-4 py-3.5 sm:px-7">
-          <Link to="/" className="group flex items-center gap-3">
-            <svg viewBox="0 0 64 64" width="32" height="32" aria-hidden="true">
-              <rect width="64" height="64" rx="14" fill="#11161C" />
-              <path
-                d="M41 12a13 13 0 0 0-14.6 17.4L13.6 42.2a5.2 5.2 0 0 0 7.3 7.3l12.8-12.8A13 13 0 0 0 51 22l-7.4 7.4-6.2-1.8-1.8-6.2z"
-                fill="#F4F5F7"
-              />
-              <circle cx="46" cy="48" r="6.5" fill="#FFB020" />
-            </svg>
-            <span className="leading-tight">
-              <span className="block font-display text-[14.5px] font-bold tracking-tight text-chalk transition-colors group-hover:text-amber">
-                My account
-              </span>
-              <span className="mono block text-[9px] text-graphite">{BUSINESS_NAME}</span>
-            </span>
-          </Link>
-          <button type="button" onClick={onSignOut} className="btn-ghost !py-2.5 text-[13.5px]">
-            <LogOut size={14} />
-            Sign out
-          </button>
-        </div>
-      </div>
-
+      <Header />
       <main className="mx-auto max-w-[1100px] px-4 py-8 sm:px-7 sm:py-10">
         <PageTitle
           title={`Welcome back, ${(profile.full_name ?? profile.email).split(' ')[0]}.`}
@@ -192,7 +169,7 @@ useEffect(() => {
             <dl className="mt-5 space-y-4">
               <div>
                 <dt className="field-label">Name</dt>
-                <dd className="mt-1 text-[15px] text-chalk">{profile.full_name ?? '—'}</dd>
+                <dd className="mt-1 text-[15px] text-chalk">{profile.full_name ?? 'â€”'}</dd>
               </div>
               <div>
                 <dt className="field-label">Email</dt>
@@ -225,7 +202,7 @@ useEffect(() => {
 
             {rows === null ? (
               <div className="px-6">
-                <Spinner label="Loading your requests…" />
+                <Spinner label="Loading your requestsâ€¦" />
               </div>
             ) : rows.length === 0 ? (
               <div className="p-6">
@@ -273,7 +250,7 @@ useEffect(() => {
               className="absolute right-4 top-4 text-graphite transition-colors hover:text-chalk"
               aria-label="Close request form"
             >
-              ×
+              Ã—
             </button>
 
             <h2 className="font-display text-[22px] font-semibold text-chalk">
@@ -504,4 +481,5 @@ useEffect(() => {
 };
 
 export default Account;
+
 
