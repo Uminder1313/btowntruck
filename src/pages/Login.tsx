@@ -62,7 +62,14 @@ const Login: React.FC = () => {
         created_at: '',
       };
 
-      toast.success('Signed in.');
+      const firstName = user.full_name?.trim().split(/\s+/)[0] || 'there';
+
+toast.success(`Welcome back, ${firstName}! 🚚`, {
+  description: 'Your Btowntruck dashboard is ready.',
+  duration: 4000,
+  className:
+    '!border-amber/50 !bg-gradient-to-r !from-amber/15 !via-orange-500/10 !to-violet-500/15 !shadow-[0_0_30px_rgba(245,158,11,0.18)]',
+});
       try {
         window.supercool?.track?.('login', { role: user.role, door: 'customer' });
       } catch {

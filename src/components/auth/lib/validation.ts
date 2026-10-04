@@ -34,7 +34,7 @@ export const emailSchema = z
 export const serviceRequestSchema = z.object({
   name: safeText(120).pipe(z.string().min(1, 'Please add a name.')),
   phone: safeText(40).pipe(z.string().min(6, 'Please add a phone number we can reach you on.')),
-  email: z.union([emailSchema, z.literal('')]).optional(),
+  email: emailSchema,
   truck_details: safeText(200).optional(),
   location: safeText(200).pipe(z.string().min(1, 'Please tell us where you are.')),
   issue_description: safeText(2000).optional(),
@@ -51,7 +51,7 @@ export const loginSchema = z.object({
 export const resetRequestSchema = z.object({ email: emailSchema });
 
 /**
- * Public registration. The role is NEVER part of this payload — the server
+ * Public registration. The role is NEVER part of this payload â€” the server
  * always creates a `customer` unless the email is in ADMIN_EMAILS.
  * `honeypot` must stay empty (bot trap).
  */
@@ -103,7 +103,7 @@ export const URGENCIES = ['emergency', 'today', 'scheduled'] as const;
 /**
  * `pending_staff` is created by /admin/register when the email is NOT on the
  * server-side ADMIN_EMAILS allow-list. It has no dashboard access and no
- * customer area — an existing administrator promotes it in Dashboard → Users.
+ * customer area â€” an existing administrator promotes it in Dashboard â†’ Users.
  */
 export const ROLES = ['admin', 'dispatcher', 'viewer', 'customer', 'pending_staff'] as const;
 /** Roles that work the dispatch board. */

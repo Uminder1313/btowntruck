@@ -1708,6 +1708,7 @@ app.post("/api/public/submit-request", async (req, res) => {
     const {
   name,
   phone,
+  email,
   truck_details,
   location,
   issue_description,
@@ -1733,6 +1734,10 @@ if (authenticatedUser?.user_id) {
   if (profileResult.rowCount > 0) {
     requestEmail = profileResult.rows[0].email;
   }
+}
+// Use guest-provided email when no authenticated account is available.
+if (!requestEmail && email) {
+  requestEmail = email.trim().toLowerCase();
 }
 
     // Silently accept honeypot submissions to discourage bots

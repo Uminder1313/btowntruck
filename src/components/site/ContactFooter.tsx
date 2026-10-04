@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { API_BASE } from '@/components/auth/lib/api';
 import { toast } from 'sonner';
 import { CheckCircle2, Loader2, Phone } from 'lucide-react';
+import { useAuth } from '@/components/auth/lib/auth';
 import {
   Section,
   Shell,
@@ -25,10 +26,11 @@ import { useCopy } from '@/components/auth/lib/site-copy';
 export const Contact: React.FC = () => {
   const copy = useCopy();
   const c = content.contact;
-
+  const { session } = useAuth();
   const [values, setValues] = useState({
     name: '',
     phone: '',
+    email: '',
     truck_details: '',
     location: '',
     issue_description: '',
@@ -38,7 +40,8 @@ export const Contact: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
-
+  const [showAccountPrompt, setShowAccountPrompt] = useState(false);
+  const [allowGuestSubmit, setAllowGuestSubmit] = useState(false);
   const set =
     (key: keyof typeof values) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -53,7 +56,10 @@ export const Contact: React.FC = () => {
     e.preventDefault();
 
     if (sending) return;
-
+    if (!session && !allowGuestSubmit) {
+  setShowAccountPrompt(true);
+  return;
+}
     // Client-side validation with the same zod schema the server re-runs.
     const parsed = serviceRequestSchema.safeParse({
       ...values,
@@ -111,10 +117,11 @@ export const Contact: React.FC = () => {
       }
 
       setSent(true);
-
+setAllowGuestSubmit(false);
       setValues({
         name: '',
         phone: '',
+        email: '',
         truck_details: '',
         location: '',
         issue_description: '',
@@ -132,7 +139,7 @@ export const Contact: React.FC = () => {
       }
     } catch {
       toast.error(
-        'Network problem — please call 506-223-1121.',
+        'Network problem â€” please call 506-223-1121.',
       );
     } finally {
       setSending(false);
@@ -147,7 +154,7 @@ export const Contact: React.FC = () => {
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
             <Reveal>
-              <Eyebrow>// 10 — Contact</Eyebrow>
+              <Eyebrow>// 10 â€” Contact</Eyebrow>
             </Reveal>
 
             <Reveal delay={80}>
@@ -208,44 +215,84 @@ export const Contact: React.FC = () => {
                 {c.formTitle}
               </h3>
 
-              {sent ? (
-                /* Clear confirmation state after a successful submit */
-                <div className="mt-8 flex flex-col items-start gap-4">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full border border-amber/40 bg-amber/10">
-                    <CheckCircle2
-                      className="text-amber"
-                      size={22}
-                    />
-                  </span>
+              {showAccountPrompt ? (
+  <div className="mt-8 overflow-hidden rounded-2xl border border-amber/30 bg-gradient-to-br from-amber/10 via-background to-violet-500/10 p-6 shadow-[0_0_35px_rgba(245,158,11,0.12)]">
+    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-amber/40 bg-amber/10 text-xl">
+      ðŸšš
+    </div>
 
-                  <p className="font-display text-[19px] font-semibold leading-snug tracking-tight text-chalk">
-                    {c.toast}
-                  </p>
+    <h4 className="mt-4 font-display text-[20px] font-semibold text-chalk">
+      Almost there!
+    </h4>
 
-                  <p className="text-[15px] leading-relaxed text-graphite">
-                    Keep your phone close — dispatch calls back
-                    on the number you gave us.
-                  </p>
+    <p className="mt-2 max-w-md text-[13px] leading-relaxed text-graphite">
+      Sign in or create an account to submit your request and track its
+      status from your Btowntruck dashboard.
+    </p>
 
-                  <div className="flex flex-wrap gap-3 pt-2">
-                    <a
-                      href={PHONE_HREF}
-                      className="btn-amber !py-3 text-[14px]"
-                    >
-                      <Phone size={15} />
-                      {PHONE}
-                    </a>
+    <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+      <a
+        href="/login"
+        className="btn-amber inline-flex justify-center"
+      >
+        Sign in
+      </a>
 
-                    <button
-                      type="button"
-                      className="btn-ghost !py-3 text-[14px]"
-                      onClick={() => setSent(false)}
-                    >
-                      Send another request
-                    </button>
-                  </div>
-                </div>
-              ) : (
+      <a
+        href="/register"
+        className="inline-flex items-center justify-center rounded-md border border-white/15 px-5 py-3 text-sm text-chalk transition-colors hover:border-amber/40 hover:text-amber"
+      >
+        Create account
+      </a>
+
+      <button
+        type="button"
+        onClick={() => {
+  setShowAccountPrompt(false);
+  setAllowGuestSubmit(true);
+}}
+        className="mono px-3 py-2 text-[10.5px] text-graphite transition-colors hover:text-chalk"
+      >
+        Continue as guest
+      </button>
+    </div>
+  </div>
+) : sent ? (
+  <div className="mt-8 flex flex-col items-start gap-4">
+    <span className="flex h-12 w-12 items-center justify-center rounded-full border border-amber/40 bg-amber/10">
+      <CheckCircle2
+        className="text-amber"
+        size={22}
+      />
+    </span>
+
+    <p className="font-display text-[19px] font-semibold leading-snug tracking-tight text-chalk">
+      {c.toast}
+    </p>
+
+    <p className="text-[15px] leading-relaxed text-graphite">
+      Keep your phone close ï¿½ dispatch calls back
+      on the number you gave us.
+    </p>
+
+    <div className="flex flex-wrap gap-3 pt-2">
+      <a
+        href={PHONE_HREF}
+        className="btn-amber !py-3 text-[14px]"
+      >
+        <Phone size={15} />
+        {PHONE}
+      </a>
+
+      <button
+        type="button"
+        className="btn-ghost !py-3 text-[14px]"
+        onClick={() => setSent(false)}
+      >
+        Send another request
+      </button>
+    </div>
+  </div>              ) : (
                 <form
                   className="mt-7 space-y-4"
                   onSubmit={onSubmit}
@@ -337,6 +384,41 @@ export const Contact: React.FC = () => {
                           {errors.phone}
                         </p>
                       )}
+
+
+<div>
+  <label
+    className="field-label"
+    htmlFor="sr-email"
+  >
+    {c.fields.email}
+  </label>
+
+  <input
+    id="sr-email"
+    type="email"
+    className="field-input mt-2"
+    placeholder={c.placeholders.email}
+    value={values.email}
+    onChange={set('email')}
+    autoComplete="email"
+    aria-invalid={!!errors.email}
+    aria-describedby={
+      errors.email
+        ? 'sr-email-err'
+        : undefined
+    }
+  />
+
+  {errors.email && (
+    <p
+      id="sr-email-err"
+      className="mt-1.5 text-[12.5px] text-red-400"
+    >
+      {errors.email}
+    </p>
+  )}
+</div>
                     </div>
                   </div>
 

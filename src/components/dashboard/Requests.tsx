@@ -203,6 +203,7 @@ export const Requests: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
   const [urgencyFilter, setUrgencyFilter] =
     useState<Urgency | 'all'>('all');
+    const [search, setSearch] = useState('');
   const [openRow, setOpenRow] = useState<ServiceRequest | null>(null);
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -260,15 +261,27 @@ export const Requests: React.FC = () => {
     load();
   }, []);
 
-  const filtered = useMemo(
-    () =>
-      (rows ?? []).filter(
-        (r) =>
-          (statusFilter === 'all' || r.status === statusFilter) &&
-          (urgencyFilter === 'all' || r.urgency === urgencyFilter)
-      ),
-    [rows, statusFilter, urgencyFilter]
-  );
+ const filtered = useMemo(() => {
+  const query = search.trim().toLowerCase();
+
+  return (rows ?? []).filter((r) => {
+    const matchesSearch =
+      !query ||
+      String(r.id).includes(query) ||
+      r.name.toLowerCase().includes(query) ||
+      r.phone.toLowerCase().includes(query) ||
+      r.location.toLowerCase().includes(query) ||
+      r.issue_description.toLowerCase().includes(query);
+
+    const matchesStatus =
+      statusFilter === 'all' || r.status === statusFilter;
+
+    const matchesUrgency =
+      urgencyFilter === 'all' || r.urgency === urgencyFilter;
+
+    return matchesSearch && matchesStatus && matchesUrgency;
+  });
+}, [rows, search, statusFilter, urgencyFilter]);
 
   const patch = async (
     id: number,
@@ -348,7 +361,27 @@ export const Requests: React.FC = () => {
       )}
 
       <Panel className="mb-5">
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col gap-4">
+    <div className="relative w-full max-w-[420px]">
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search requests..."
+        className="field-input w-full pr-10"
+      />
+
+      {search && (
+        <button
+          type="button"
+          onClick={() => setSearch('')}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-graphite transition-colors hover:text-chalk"
+          aria-label="Clear search"
+        >
+          <X size={15} />
+        </button>
+      )}
+    </div>
           <span className="mono inline-flex items-center gap-2 text-[10px] text-graphite">
             <Filter size={13} className="text-amber" />
             Filters
@@ -408,12 +441,22 @@ export const Requests: React.FC = () => {
             <Spinner />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-6">
-            <EmptyState
-              title="Nothing matches those filters"
-              sub="Clear a filter to see more jobs."
-            />
-          </div>
+  <div className="p-6">
+    <EmptyState
+      title={
+        rows.length === 0
+          ? 'No service requests yet'
+          : 'No matching requests'
+      }
+      sub={
+        rows.length === 0
+          ? 'Submissions from the public form will appear here.'
+          : search.trim()
+            ? `No requests match "${search.trim()}". Try a different search or clear the filters.`
+            : 'Try changing or clearing the filters to see more jobs.'
+      }
+    />
+  </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] border-collapse text-left">
