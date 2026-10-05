@@ -82,52 +82,51 @@ useEffect(() => {
   }, [loading, session, profile, navigate]);
 
 
-useEffect(() => {
+const loadRequests = async () => {
   if (!profile || !canUseCustomerArea(profile)) return;
 
-  let cancelled = false;
+  setRows(null);
 
-  (async () => {
-    try {
-      const sessionToken = getSessionToken();
+  try {
+    const sessionToken = getSessionToken();
 
-      if (!sessionToken) {
-        toast.error('Your session has expired. Please sign in again.');
-        return;
-      }
-
-      const response = await fetch(`${API_BASE}/api/my-requests`, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (cancelled) return;
-
-      if (!response.ok) {
-        toast.error(
-          data.error ?? 'Could not load your service requests.',
-        );
-        setRows([]);
-        return;
-      }
-
-      setRows((data.requests ?? []) as MyRequest[]);
-    } catch (error) {
-      if (cancelled) return;
-
-      console.error('Load service requests error:', error);
-      toast.error('Could not load your service requests.');
+    if (!sessionToken) {
+      toast.error('Your session has expired. Please sign in again.');
       setRows([]);
+      return;
     }
-  })();
 
-  return () => {
-    cancelled = true;
-  };
+    const response = await fetch(`${API_BASE}/api/my-requests`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${sessionToken}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error ?? 'Could not load your service requests.',
+      );
+    }
+
+    setRows((data.requests ?? []) as MyRequest[]);
+  } catch (error) {
+    console.error('Load service requests error:', error);
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : 'Could not load your service requests.',
+    );
+
+    setRows([]);
+  }
+};
+
+useEffect(() => {
+  loadRequests();
 }, [profile]);
 
   const onSignOut = async () => {
@@ -190,15 +189,27 @@ useEffect(() => {
 
           <Panel className="!p-0">
             <div className="flex items-center justify-between gap-3 border-b border-white/[0.08] px-5 py-4 sm:px-6">
-              <h2 className="font-display text-[17px] font-semibold text-chalk">
-                Your service requests
-              </h2>
-              {rows !== null && (
-                <span className="mono text-[9.5px] text-graphite">
-                  {rows.length} {rows.length === 1 ? 'request' : 'requests'}
-                </span>
-              )}
-            </div>
+  <h2 className="font-display text-[17px] font-semibold text-chalk">
+    Your service requests
+  </h2>
+
+  <div className="flex items-center gap-3">
+    {rows !== null && (
+      <span className="mono text-[9.5px] text-graphite">
+        {rows.length} {rows.length === 1 ? 'request' : 'requests'}
+      </span>
+    )}
+
+    <button
+      type="button"
+      onClick={loadRequests}
+      disabled={rows === null}
+      className="mono inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/[0.03] px-3 py-1.5 text-[9.5px] text-graphite transition-colors hover:border-amber/40 hover:text-amber disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      Refresh
+    </button>
+  </div>
+</div>
 
             {rows === null ? (
               <div className="px-6">

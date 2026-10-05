@@ -1,7 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { Filter, RefreshCw, X } from 'lucide-react';
-import { getSessionToken } from '@/components/auth/lib/session-store';
+import {
+  AlertCircle,
+  CheckCircle2,
+  CircleDot,
+  Clock3,
+  Filter,
+  RefreshCw,
+  Truck,
+  X,
+} from 'lucide-react';import { getSessionToken } from '@/components/auth/lib/session-store';
 import {
   useAuth,
   isStaff,
@@ -118,6 +126,41 @@ export const Overview: React.FC = () => {
     return base;
   }, [rows]);
 
+  const STATUS_META: Record<
+  Status,
+  {
+    icon: React.ElementType;
+    description: string;
+    iconClass: string;
+  }
+> = {
+  new: {
+    icon: AlertCircle,
+    description: 'New requests awaiting action',
+    iconClass: 'text-amber',
+  },
+  dispatched: {
+    icon: Truck,
+    description: 'Jobs currently dispatched',
+    iconClass: 'text-sky-400',
+  },
+  in_progress: {
+    icon: Clock3,
+    description: 'Jobs currently being worked on',
+    iconClass: 'text-blue-400',
+  },
+  completed: {
+    icon: CheckCircle2,
+    description: 'Successfully completed jobs',
+    iconClass: 'text-emerald-400',
+  },
+  cancelled: {
+    icon: CircleDot,
+    description: 'Requests that were cancelled',
+    iconClass: 'text-graphite',
+  },
+};
+
   return (
     <div>
       <PageTitle
@@ -126,9 +169,18 @@ export const Overview: React.FC = () => {
       />
 
       <div className="grid gap-3.5 sm:grid-cols-2 xl:grid-cols-5">
-        {STATUSES.map((s) => (
-          <Panel key={s} className="glass-hover">
-            <p className="mono text-[9.5px] text-graphite">
+  {STATUSES.map((s) => {
+    const meta = STATUS_META[s];
+    const Icon = meta.icon;
+
+    return (
+      <Panel
+        key={s}
+        className="group relative overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="mono text-[9.5px] uppercase tracking-[0.08em] text-graphite">
               {STATUS_LABEL[s]}
             </p>
 
@@ -139,9 +191,36 @@ export const Overview: React.FC = () => {
             >
               {rows === null ? '—' : counts[s]}
             </p>
-          </Panel>
-        ))}
-      </div>
+          </div>
+
+          <div
+            className={`rounded-xl border border-white/10 bg-white/[0.04] p-2.5 transition-transform duration-200 group-hover:scale-105 ${meta.iconClass}`}
+          >
+            <Icon className="h-4.5 w-4.5" />
+          </div>
+        </div>
+
+        <p className="mt-3 text-[11px] leading-4 text-graphite">
+          {meta.description}
+        </p>
+
+        <div
+          className={`absolute inset-x-0 bottom-0 h-[2px] opacity-60 ${
+            s === 'new'
+              ? 'bg-amber'
+              : s === 'dispatched'
+                ? 'bg-sky-400'
+                : s === 'in_progress'
+                  ? 'bg-blue-400'
+                  : s === 'completed'
+                    ? 'bg-emerald-400'
+                    : 'bg-white/20'
+          }`}
+        />
+      </Panel>
+    );
+  })}
+</div>
 
       <h2 className="mt-10 font-display text-[19px] font-semibold tracking-tight text-chalk">
         Latest requests
